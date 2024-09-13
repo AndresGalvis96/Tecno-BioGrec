@@ -4,7 +4,6 @@ import { listAllClients,findRequestById, findClientById, listAllRequests, listRe
 
 const router = express.Router();
 
-// Rutas para el administrador
 router.get('/clients', listAllClients);
 router.get('/clients/:clientId', findClientById);
 router.get('/request/:requestId', findRequestById);

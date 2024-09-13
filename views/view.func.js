@@ -485,7 +485,6 @@ document.getElementById('solicitar-link').addEventListener('click', function(eve
         }
 
         if (useCurrentLocation) {
-            // Obtener la ubicación actual del usuario
             navigator.geolocation.getCurrentPosition(function(position) {
                 const location = {
                     latitude: position.coords.latitude,
@@ -587,9 +586,7 @@ document.getElementById('cerrar-sesion').addEventListener('click', function(even
     })
     .then(response => {
         if (response.ok) {
-            // Eliminar la cookie del token en el cliente
             document.cookie = 'token=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/';
-            // Redirigir al usuario a la página de inicio de sesión
             window.location.href = '/';
         } else {
             alert('Error al cerrar sesión.');

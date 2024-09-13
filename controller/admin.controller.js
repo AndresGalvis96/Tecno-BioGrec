@@ -74,7 +74,7 @@ export const findRequestById = async (req, res) => {
     const clientLocation = await getClientLocation(request.userId);
     res.status(200).json({
       ...request._doc,
-      location: clientLocation // Agrega la ubicación al objeto de respuesta
+      location: clientLocation 
     });
   } catch (error) {
     res.status(500).json({ message: 'Error al obtener los detalles de la solicitud', error: error.message });
@@ -112,7 +112,7 @@ export const getLocation = async (req, res) =>{
     const clientLocation = await getClientLocation(request.userId);
     res.status(200).json({
       ...request._doc,
-      location: clientLocation // Agrega la ubicación al objeto de respuesta
+      location: clientLocation 
     });
   } catch (error) {
     res.status(500).json({ message: 'Error al obtener los detalles de la solicitud', error: error.message });

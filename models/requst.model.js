@@ -41,10 +41,9 @@ export const getTotalPointsByUser = async (userId) => {
 
 export const getRequestsByClientId = async (userId) => {
   try {
-    // Buscar solicitudes que estén asociadas al userId proporcionado
+
     const requests = await Request.find({ userId: userId });
-    
-    // Verificar si se encontraron solicitudes
+
     if (requests.length === 0) {
       console.log("No se encontraron solicitudes para el usuario con ID:", userId);
       return null;

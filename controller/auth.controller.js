@@ -28,7 +28,7 @@ export const listAllClients = async (req, res) => {
   }
 };
 export const login = async (req, res) => {
-  const { email, password, secretKey } = req.body; // Añadir secretKey aquí
+  const { email, password, secretKey } = req.body; 
 
   try {
     res.clearCookie('token');
@@ -49,7 +49,6 @@ export const login = async (req, res) => {
       return res.status(401).json({ success: false, message: "Credenciales password inválidas" });
     }
 
-    // Determinar el tipo de usuario basado en el campo secreto
     const userType = secretKey === 'admin' ? 'admin' : user.type;
     const token = jwt.sign({ userId: user._id, type: userType }, exports.secret, { expiresIn: '1h' });
 
@@ -71,14 +70,14 @@ export const signup = async (req, res) => {
       return res.status(400).json({ success: false, message: "Todos los campos son obligatorios" });
     }
 
-    const userType = type || "cliente"; // Si no se especifica el tipo, se asigna "cliente" por defecto
+    const userType = type || "cliente"; 
 
     const newUser = await createUser({ name, lastName, email, password, address, type: userType });
 
     const token = jwt.sign({ userId: newUser._id }, exports.secret, { expiresIn: '1h' });
     res.cookie('token', token, { httpOnly: true });
     
-    res.redirect(`/bienvenido`); // Redirige a la página de bienvenida
+    res.redirect(`/bienvenido`); 
   } catch (error) {
     console.error("Error al registrar el usuario", error);
     res.status(500).json({ success: false, message: "Error en el servidor" });

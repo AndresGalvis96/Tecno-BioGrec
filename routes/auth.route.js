@@ -37,7 +37,7 @@ router.get("/me", verifyToken, async (req, res) => {
 
 router.post('/requests', verifyToken, async (req, res) => {
   try {
-    const userId = req.user.userId; // Extrae el userId del token verificado
+    const userId = req.user.userId; 
     const { title, detail, location } = req.body;
     const newRequest = await createRequest(userId, { title, detail, location });
     res.status(201).json(newRequest);

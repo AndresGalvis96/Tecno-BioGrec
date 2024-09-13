@@ -87,8 +87,7 @@ export const addRequestToUser = async (userId, requestData) => {
       console.log("Usuario inexistente");
       return null;
     }
-    
-    // Asigna valores predeterminados si no se proporcionan
+
     const newRequest = {
       title: requestData.title,
       detail: requestData.detail,
