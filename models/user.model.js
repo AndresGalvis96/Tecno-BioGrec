@@ -9,11 +9,13 @@ const UserSchema = new mongoose.Schema({
   email: { type: String, required: true, unique: true },
   address: { type: String, required: true },
   password: { type: String, required: true },
-  type: { type: String, required: true, default: "cliente" },
+  type: { type: String, required: true, default: "admin" },
   location: {
     latitude: { type: Number },
     longitude: { type: Number }
   },
+  phone: { type: String, required: true },  
+  doc: { type: String, required: true },   
   requests: [{ 
     title: { type: String, required: true },
     detail: { type: String, required: true },
@@ -23,7 +25,6 @@ const UserSchema = new mongoose.Schema({
   }]
 });
 
-
 const User = mongoose.model('User', UserSchema);
 
 export const createUser = async (userData) => {
@@ -32,13 +33,29 @@ export const createUser = async (userData) => {
     const user = new User({
       ...userData,
       password: hashedPassword,
-      location: userData.location || { latitude: null, longitude: null }
+      location: userData.location || { latitude: null, longitude: null },
+      phone: userData.phone, 
+      doc: userData.doc     
     });
     await user.save();
     return user;
   } catch (error) {
     console.error("Error al crear usuario en la base de datos", error);
     throw new Error("Error al crear usuario en la base de datos");
+  }
+};
+
+export const updateUser = async (userId, userData) => {
+  try {
+    const user = await User.findByIdAndUpdate(userId, {
+      ...userData,
+      phone: userData.phone,  
+      doc: userData.doc    
+    }, { new: true });
+    return user;
+  } catch (error) {
+    console.error("Error al actualizar usuario en la base de datos", error);
+    throw new Error("Error al actualizar usuario en la base de datos");
   }
 };
 
@@ -57,7 +74,6 @@ export const getUserByEmail = async (email) => {
 };
 
 export const getUserById = async (userId) => {
-
   try {
     const user = await User.findById(userId);
     if (!user) {
@@ -71,15 +87,6 @@ export const getUserById = async (userId) => {
   }
 };
 
-export const updateUser = async (userId, userData) => {
-  try {
-    const user = await User.findByIdAndUpdate(userId, userData, { new: true });
-    return user;
-  } catch (error) {
-    console.error("Error al actualizar usuario en la base de datos", error);
-    throw new Error("Error al actualizar usuario en la base de datos");
-  }
-};
 export const addRequestToUser = async (userId, requestData) => {
   try {
     const user = await User.findById(userId);
@@ -104,7 +111,6 @@ export const addRequestToUser = async (userId, requestData) => {
   }
 };
 
-
 export const deleteUser = async (userId) => {
   try {
     await User.findByIdAndDelete(userId);
@@ -122,17 +128,19 @@ export const comparePassword = async (password, hashedPassword) => {
     throw new Error("Error al comparar contraseñas");
   }
 };
+
 export const getAllClients = async () => {
   try {
     console.log("getAllclients");
     
-    const clients = await User.find({ type: 'cliente' }).select('-password'); // Excluye el campo de contraseña
+    const clients = await User.find({ type: 'cliente' }).select('-password');
     return clients;
   } catch (error) {
     console.error("Error al obtener todos los clientes de la base de datos", error);
     throw new Error("Error al obtener todos los clientes de la base de datos");
   }
 };
+
 export const getClientLocation = async (userId) => {
   try {
     const user = await User.findById(userId);
@@ -145,4 +153,5 @@ export const getClientLocation = async (userId) => {
     throw new Error("Error al obtener la ubicación del cliente");
   }
 };
+
 export default mongoose.model('User', UserSchema);

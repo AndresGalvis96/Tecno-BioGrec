@@ -29,6 +29,8 @@
         <a href="#"onclick="closeNav()" class="nav-link admin-link" id="solicitudes-link">Solicitudes</a>
         
         <a href="#"onclick="closeNav()" class="nav-link admin-link" id="clientes-link">Clientes</a>
+
+        <a href="#"onclick="closeNav()" class="nav-link admin-link" id="productos-link">Gestión productos</a>
         <br>
         <a href="#" class="nav-link" id="cerrar-sesion">Cerrar sesión</a>
       </div>
@@ -41,10 +43,18 @@
             <div class="modal-content">
                 <a class="close" onclick="closeRating()">×</a>
                 <h2>Califica esta solicitud</h2>
-                <input type="number" id="rating-input" min="1" max="100" placeholder="Ingresa una calificación (1-100)" required>
+                <div>
+                    <input type="text" id="search-products" placeholder="Buscar productos" oninput="filterProducts()">
+                  </div>
+                  
+                  <div id="product-list"></div>
+                  
+                  <h3>Productos seleccionados:</h3>
+                  <div id="selected-products"></div>
+                <div id="rating-container"></div>
                 <button id="finish-request-confirm-button">Terminar</button>
             </div>
-        </div>
+        </div>        
         
     </main>
 
@@ -61,6 +71,7 @@ function closeRating() {
 }
 </script>
     <script src="view.func.js"></script>
+    <script src="func.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/jwt-decode@3.1.2/build/jwt-decode.min.js"></script>
 
 

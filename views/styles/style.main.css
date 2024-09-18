@@ -398,7 +398,76 @@ button:hover {
     width: 80%;
     max-width: 300px;
     text-align: center;
+
 }.rating-text {
     float: right;
     text-align: right;
 }
+
+#products-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  
+  #products-table th, #products-table td {
+    text-align: center; 
+    padding: 8px; 
+  }
+ 
+  .point {
+    width: 60px; 
+    text-align: center; 
+  }
+
+/* Estilos para los items de la lista */
+#rating-container {
+    display: flex;
+    flex-direction: column;
+    gap: 8%; /* Espacio entre los productos */
+}
+
+.rating-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+}
+
+.product-name {
+    flex: 1; /* Para ocupar el espacio disponible */
+    font-weight: bold;
+}
+
+.product-input {
+    flex: 1; /* Para que el input y el nombre tengan tamaños proporcionados */
+}
+
+.product-input input {
+    width: 100%;
+    padding: 8px;
+    box-sizing: border-box;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+.remove-btn {
+    background-color: red;
+    color: white;
+    border: none;
+    padding: 5px;
+    cursor: pointer;
+    width: 30px;
+    height: 30px;
+    font-size: 18px;
+    text-align: center;
+    margin-left: 10px;
+    border-radius: 50%;
+  }
+  .product-row {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+  .product-row span {
+    flex-grow: 1;
+  }

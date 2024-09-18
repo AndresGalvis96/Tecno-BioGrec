@@ -63,9 +63,9 @@ router.get('/requests/all', verifyToken, async (req, res) => {
 
 
 router.put("/me", verifyToken, async (req, res) => {
-  const { name, lastName, address, location } = req.body;
+  const { name, lastName, doc, phone, address, location } = req.body;
   
-  if (!name && !lastName && !address && !location) {
+  if (!name && !lastName && !address && !location && !doc && !phone)  {
     return res.status(400).json({ message: 'No se proporcionaron datos para actualizar' });
   }
 
@@ -75,6 +75,8 @@ router.put("/me", verifyToken, async (req, res) => {
 
     if (name) updateData.name = name;
     if (lastName) updateData.lastName = lastName;
+    if (doc) updateData.doc= doc;
+    if (phone) updateData.phone = phone;
     if (address) updateData.address = address;
     if (location) updateData.location = location;
 
