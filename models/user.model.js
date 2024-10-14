@@ -9,7 +9,7 @@ const UserSchema = new mongoose.Schema({
   email: { type: String, required: true, unique: true },
   address: { type: String, required: true },
   password: { type: String, required: true },
-  type: { type: String, required: true, default: "admin" },
+  type: { type: String, required: true, default: "cliente" },
   location: {
     latitude: { type: Number },
     longitude: { type: Number }
@@ -38,6 +38,8 @@ export const createUser = async (userData) => {
       doc: userData.doc     
     });
     await user.save();
+    console.log(userData.location);
+    
     return user;
   } catch (error) {
     console.error("Error al crear usuario en la base de datos", error);

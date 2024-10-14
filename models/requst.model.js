@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import User from './user.model.js';
+
 const requestSchema = new mongoose.Schema({
   userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
   title: { type: String, required: true },
@@ -9,7 +9,13 @@ const requestSchema = new mongoose.Schema({
     longitude: { type: Number }
   },
   status: { type: String, default: 'pendiente' }, 
-  rating: { type: Number, min: 1, max: 100 }
+  rating: { type: Number, min: 1, max: 100 },
+  tipo: { type: String }, 
+  productos: [{
+    producto: { type: String, required: true }, 
+    kilos: { type: Number, required: true } 
+  }],
+  fechaTerminacion: { type: Date }, 
 }, { timestamps: true });
 
 const Request = mongoose.model('Request', requestSchema);
@@ -94,17 +100,19 @@ export const getRequestById = async (requestId) => {
     throw new Error("Error al obtener la solicitud por ID en la base de datos");
   }
 };
-export const finishRequestById = async (requestId, rating) => {
-
+export const finishRequestById = async (requestId, rating, productos, fechaTerminacion) => {
   try {
-
     const request = await Request.findByIdAndUpdate(
       requestId,
-      { status: 'terminado', rating: rating },
-      { new: true }
+      {
+        status: 'terminado',   // Cambia el estado a terminado
+        rating: rating,        // Actualiza la calificación
+        productos: productos,  // Actualiza los productos y kilos
+        fechaTerminacion: fechaTerminacion // Actualiza la fecha de terminación
+      },
+      { new: true }  // Retorna el documento actualizado
     );
 
- 
     if (!request) {
       console.log("Solicitud no encontrada");
       return null;

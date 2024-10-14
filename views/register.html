@@ -9,7 +9,7 @@
 </head>
 <body>
     
-    <form action="http://localhost:3200/auth/signup" method="post">
+    <form id="registerForm">
         <h2>Regístra tus datos.</h2>
         <label for="name">Nombre:</label>
         <input type="text" id="name" name="name" required><br>
@@ -28,11 +28,109 @@
         
         <label for="phone">Teléfono:</label>
         <input type="text" id="phone" name="phone" required><br>
-
+        <label for="type">Tipo:</label>
+        <select id="type" name="type" required>
+            <option value="" disabled selected>Seleccione un tipo</option>
+            <option value="empresa">Empresa</option>
+            <option value="edificio">Edificio</option>
+            <option value="conjunto">Conjunto</option>
+            <option value="personal">Personal</option>
+        </select><br>
         <label for="password">Contraseña:</label>
         <input type="password" id="password" name="password" required><br>
         
         <button type="submit">Registrarse</button>
     </form>
+
+    <script>
+        document.getElementById('registerForm').addEventListener('submit', function(event) {
+            event.preventDefault(); 
+            const formData = {
+                name: document.getElementById('name').value,
+                lastName: document.getElementById('lastName').value,
+                doc: document.getElementById('doc').value,
+                email: document.getElementById('email').value,
+                address: document.getElementById('address').value,
+                phone: document.getElementById('phone').value,
+                password: document.getElementById('password').value,
+                type: document.getElementById('type').value
+            };
+
+            if (navigator.geolocation) {
+                console.log('Intentando obtener la ubicación...');
+                navigator.geolocation.getCurrentPosition(
+                    function(position) {
+                        const latitude = position.coords.latitude;
+                        const longitude = position.coords.longitude;
+                        console.log('Ubicación obtenida:', latitude, longitude);
+                        formData.location = {
+                            latitude: latitude,
+                            longitude: longitude
+                        };
+
+                        sendFormData(formData);
+                    },
+                    function(error) {
+                        console.error('Error al obtener la ubicación:', error);
+                        handleGeolocationError(error);
+
+                        // Enviar el formulario sin la ubicación
+                        sendFormData(formData);
+                    },
+                    {
+                        enableHighAccuracy: true, // Solicitar la mejor precisión posible
+                        timeout: 5000,            // Tiempo máximo para intentar obtener la ubicación (5 segundos)
+                        maximumAge: 0             // No usar caché para la ubicación
+                    }
+                );
+            } else {
+                console.error("La geolocalización no está soportada por este navegador");
+                sendFormData(formData); // Enviar los datos sin ubicación
+            }
+        });
+
+        // Función para enviar los datos al servidor
+        function sendFormData(formData) {
+            fetch('http://localhost:3200/auth/signup', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(formData)
+            })
+            .then(response => {
+                if (response.ok) {
+                    // Redirigir a una página de bienvenida o mostrar mensaje de éxito
+                    window.location.href = '/bienvenido';
+                } else {
+                    return response.json().then(data => {
+                        alert('Error: ' + data.message);
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Error en la solicitud:', error);
+            });
+        }
+
+        // Función para manejar errores de geolocalización
+        function handleGeolocationError(error) {
+            switch(error.code) {
+                case error.PERMISSION_DENIED:
+                    alert("Se ha denegado el permiso para obtener la ubicación.");
+                    break;
+                case error.POSITION_UNAVAILABLE:
+                    alert("La información de ubicación no está disponible.");
+                    break;
+                case error.TIMEOUT:
+                    alert("La solicitud para obtener la ubicación ha expirado.");
+                    break;
+                case error.UNKNOWN_ERROR:
+                    alert("Ha ocurrido un error desconocido al obtener la ubicación.");
+                    break;
+            }
+        }
+    </script>
+
 </body>
 </html>

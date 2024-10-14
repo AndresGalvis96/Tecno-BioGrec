@@ -1,10 +1,10 @@
 import { Router } from 'express';
 import { getUserByEmail } from '../models/user.model.js';
 import { getAllClients } from '../models/user.model.js';
-
+import { verifyToken } from "../middlewares/auth.middleware.js";
 const router = Router();
 
-router.get('/get', async (req, res) => {
+router.get('/get',verifyToken, async (req, res) => {
   const { email } = req.body;
 
   try {
@@ -23,7 +23,7 @@ router.post('/logout', (req, res) => {
   res.redirect('/login');
 });
 
-router.get('/clients', async (req, res) => {
+router.get('/clients',verifyToken, async (req, res) => {
   try {
     const clients = await getAllClients();
     res.status(200).json(clients);
@@ -32,7 +32,7 @@ router.get('/clients', async (req, res) => {
   }
 });
 
-router.post('/request', async (req, res) => {
+router.post('/request',verifyToken, async (req, res) => {
   const { userId, title, detail } = req.body;
   
   if (!userId || !title || !detail) {
@@ -54,7 +54,7 @@ router.post('/request', async (req, res) => {
 });
 
 
-router.get('/requests/:id', async (req, res) => {
+router.get('/requests/:id',verifyToken, async (req, res) => {
   const { id } = req.params;
 
   try {

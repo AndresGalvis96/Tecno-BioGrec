@@ -1,55 +1,62 @@
 function loadRequests() {
-    fetch('/admin/requests/all/clients', {
-        method: 'GET',
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': 'Bearer ' + document.cookie.replace(/(?:(?:^|.*;\s*)token\s*\=\s*([^;]*).*$)|^.*$/, "$1")
-        }
-    })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error('Error en la respuesta de la red');
-        }
-        return response.json();
-    })
-    .then(data => {
-        console.log('Datos de solicitudes recibidos:', data);
-        const contentArea = document.getElementById('content-area');
-        contentArea.innerHTML = '';
+  fetch('/admin/requests/all/clients', {
+      method: 'GET',
+      headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + document.cookie.replace(/(?:(?:^|.*;\s*)token\s*\=\s*([^;]*).*$)|^.*$/, "$1")
+      }
+  })
+  .then(response => {
+      if (!response.ok) {
+          throw new Error('Error en la respuesta de la red');
+      }
+      return response.json();
+  })
+  .then(data => {
+      console.log('Datos de solicitudes recibidos:', data);
+      const contentArea = document.getElementById('content-area');
+      contentArea.innerHTML = '';
 
-        if (Array.isArray(data) && data.length > 0) {
+      if (Array.isArray(data) && data.length > 0) {
+          data.sort((a, b) => {
+              if (a.status === 'pendiente' && b.status === 'terminado') {
+                  return -1;
+              } else if (a.status === 'terminado' && b.status === 'pendiente') {
+                  return 1;
+              } else {
+                  return 0; 
+              }
+          });
 
-            data.sort((a, b) => {
-                if (a.status === 'pendiente' && b.status === 'terminado') {
-                    return -1;
-                } else if (a.status === 'terminado' && b.status === 'pendiente') {
-                    return 1;
-                } else {
-                    return 0; 
-                }
-            });
+          data.forEach(request => {
+              const requestBox = document.createElement('div');
+              requestBox.className = 'request-box';
+              requestBox.innerHTML = `
+                  <p><strong>Título:</strong> ${request.title}</p>
+                  <p><strong>Detalle:</strong> ${request.detail}</p>
+                  <p><strong>Usuario:</strong> ${request.userId.name} (${request.userId.email})</p>
+                  <p><strong>Estado:</strong> ${request.status}</p>
+                  <p><strong>Calificación:</strong> ${request.rating || 'N/A'}</p>
+              `;
 
-            data.forEach(request => {
-                const requestBox = document.createElement('div');
-                requestBox.className = 'request-box';
-                requestBox.innerHTML = `
-                    <p><strong>Título:</strong> ${request.title}</p>
-                    <p><strong>Detalle:</strong> ${request.detail}</p>
-                    <p><strong>Usuario:</strong> ${request.userId.name} (${request.userId.email})</p>
-                    <p><strong>Estado:</strong> ${request.status}</p>
-                    <p><strong>Calificación:</strong> ${request.rating || 'N/A'}</p>
-                    <button type="button" onclick="viewRequestDetails('${request._id}')">Ver solicitud</button>
-                `;
-                contentArea.appendChild(requestBox);
-            });
-        } else {
-            contentArea.innerHTML = '<p>No se encontraron solicitudes.</p>';
-        }
-    })
-    .catch(error => {
-        console.error('Error al cargar las solicitudes:', error);
-        document.getElementById('content-area').innerHTML = '<p>Error al cargar las solicitudes.</p>';
-    });
+              if (request.status === 'pendiente') {
+                  const viewButton = document.createElement('button');
+                  viewButton.type = 'button';
+                  viewButton.onclick = () => viewRequestDetails(request._id);
+                  viewButton.innerText = 'Ver solicitud';
+                  requestBox.appendChild(viewButton);
+              }
+
+              contentArea.appendChild(requestBox);
+          });
+      } else {
+          contentArea.innerHTML = '<p>No se encontraron solicitudes.</p>';
+      }
+  })
+  .catch(error => {
+      console.error('Error al cargar las solicitudes:', error);
+      document.getElementById('content-area').innerHTML = '<p>Error al cargar las solicitudes.</p>';
+  });
 }
 
 function viewRequestDetails(requestId) {
@@ -178,6 +185,13 @@ function removeProduct(productName) {
   renderSelectedProducts();
   filterProducts(); 
 }
+function clearSelectedProducts() {
+  selectedProducts.forEach(product => {
+      removeProduct(product.nombre); 
+  });
+  renderSelectedProducts(); 
+  document.getElementById('rating-modal').style.display = 'none';
+}
 
 function finishRequest(requestId) {
     document.getElementById('rating-modal').style.display = 'block';
@@ -214,7 +228,7 @@ function finishRequest(requestId) {
             .then(response => {
                 if (response.ok) {
                     alert('Solicitud terminada exitosamente.');
-                    closeRatingModal();
+                    clearSelectedProducts();
                     loadRequests();
                 } else {
                     alert('Error al terminar la solicitud.');
@@ -228,6 +242,8 @@ function finishRequest(requestId) {
     }; 
 }
 function closeRatingModal() {
+  selectedProducts = []; 
+  renderSelectedProducts();
     document.getElementById('rating-modal').style.display = 'none';
 }
 
@@ -248,7 +264,8 @@ function loadClients(page = 1) {
     .then(data => {
         const contentArea = document.getElementById('content-area');
         contentArea.innerHTML = '';
-
+        console.log(data);
+        
         
         const searchForm = document.createElement('form');
         searchForm.innerHTML = `
@@ -258,6 +275,8 @@ function loadClients(page = 1) {
         `;
         contentArea.appendChild(searchForm);
         allClients = data.clients;
+        console.log(allClients);
+        
         renderClients(allClients);
 
         const paginationControls = document.createElement('div');
@@ -440,8 +459,11 @@ function loadProductManagement() {
               <input type="number" class="point" id="points-${product._id}" value="${product.puntos}" />
             </td>
             <td>
-              <button onclick="updateProduct('${product._id}')">Actualizar</button>
-            </td>
+            <div id="button-container" class="button-container">
+                <button class="update-btn" onclick="updateProduct('${product._id}')">✓</button>
+                <button class="delete-btn" onclick="deleteProduct('${product._id}')">X</button>
+            </div>
+              </td>
           `;
           productsList.appendChild(row);
         });
@@ -450,11 +472,31 @@ function loadProductManagement() {
         console.error('Error al obtener productos:', error);
       });
   }
+  function deleteProduct(productId) {
+
+    fetch(`admin/delete/product/${productId}`, {
+        method: 'DELETE',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + document.cookie.replace(/(?:(?:^|.*;\s*)token\s*\=\s*([^;]*).*$)|^.*$/, "$1")
+        }
+    })
+    .then(response => {
+        if (response.ok) {
+            fetchProducts(); 
+        } else {
+            console.error('Error al eliminar el producto:', response.statusText);
+        }
+    })
+    .catch(error => {
+        console.error('Error al eliminar el producto:', error);
+    });
+}
   function updateProduct(productId) {
     const pointsInput = document.getElementById(`points-${productId}`);
     const newPoints = pointsInput.value;
   
-    fetch(`admin/products/${productId}`, {
+    fetch(`admin/update/product/${productId}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json'
@@ -464,6 +506,8 @@ function loadProductManagement() {
       .then(response => response.json())
       .then(data => {
         alert('Producto actualizado correctamente');
+        console.log(data);
+        
       })
       .catch(error => {
         console.error('Error al actualizar producto:', error);

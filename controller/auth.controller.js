@@ -5,9 +5,8 @@ import { getAllClients } from '../models/user.model.js';
 import Request from "../models/requst.model.js";
 import { getTotalPointsByUser } from '../models/requst.model.js';
 
-// Expresiones regulares para validar formatos
-const phoneRegex = /^\d{10}$/; // Ejemplo: número de 10 dígitos
-const docRegex = /^\d{7,10}$/; // Ejemplo: DNI de 7 a 10 dígitos (ajustable según el país)
+const phoneRegex = /^\d{10}$/; 
+const docRegex = /^\d{7,10}$/;
 
 export const getTotalPoints = async (req, res) => {
   const { userId } = req.params;
@@ -34,33 +33,23 @@ export const listAllClients = async (req, res) => {
 
 export const login = async (req, res) => {
   const { email, password, secretKey } = req.body; 
-
   try {
     res.clearCookie('token');
-
     if (!email || !password) {
       return res.status(400).json({ success: false, message: "El campo 'email' y 'password' son obligatorios" });
     }
-
     const user = await getUserByEmail(email);
-
     if (!user) {
       return res.status(401).json({ success: false, msg: "Credenciales email inválidas" });
     }
-
     const validPassword = await comparePassword(password, user.password);
-
     if (!validPassword) {
       return res.status(401).json({ success: false, message: "Credenciales password inválidas" });
     }
-
     const userType = secretKey === 'admin' ? 'admin' : user.type;
     const token = jwt.sign({ userId: user._id, type: userType }, exports.secret, { expiresIn: '1h' });
-
     res.cookie('token', token, { httpOnly: true });
-
     return res.redirect(`/bienvenido`);
-
   } catch (error) {
     console.error(error);
     res.status(500).json({ success: false, message: "Error en el servidor" });
@@ -69,27 +58,24 @@ export const login = async (req, res) => {
 
 export const signup = async (req, res) => {
   try {
-    const { name, lastName, email, password, address, phone, doc, type } = req.body;
-    
-    // Verificación de que todos los campos son requeridos
-    if (!name || !lastName || !email || !password || !address || !phone || !doc) {
+    const { name, lastName, email, password, address, phone, doc, type, location } = req.body;
+    let lat, lon;
+    if (!name || !lastName || !email || !password || !address || !phone || !doc || !location) {
       return res.status(400).json({ success: false, message: "Todos los campos, incluyendo 'phone' y 'doc', son obligatorios" });
     }
 
-    // Validación de formato de phone
     if (!phoneRegex.test(phone)) {
       return res.status(400).json({ success: false, message: "El número de teléfono debe tener un formato válido (10 dígitos)" });
     }
 
-    // Validación de formato de doc
     if (!docRegex.test(doc)) {
       return res.status(400).json({ success: false, message: "El documento debe tener entre 7 y 10 dígitos" });
     }
 
     const userType = type || "cliente"; 
+ 
+    const newUser = await createUser({ name, lastName, email, password, address, phone, doc, type: userType, location });
 
-    // Pasar los nuevos campos phone y doc a la función createUser
-    const newUser = await createUser({ name, lastName, email, password, address, phone, doc, type: userType });
 
     const token = jwt.sign({ userId: newUser._id }, exports.secret, { expiresIn: '1h' });
     res.cookie('token', token, { httpOnly: true });

@@ -100,7 +100,6 @@ export const finishById = async (req, res) => {
   }
 };
 
-
 export const getLocation = async (req, res) =>{
   try {
     const requestId = req.params.id;

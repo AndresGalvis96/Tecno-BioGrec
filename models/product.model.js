@@ -35,7 +35,18 @@ export const updateProduct = async (productId, productData) => {
     throw new Error("Error al actualizar el producto en la base de datos");
   }
 };
-
+export const deleteProduct = async (productId) => {
+  try {
+    const deletedProduct = await Product.findByIdAndDelete(productId);
+    if (!deletedProduct) {
+      throw new Error("Producto no encontrado");
+    }
+    return deletedProduct;
+  } catch (error) {
+    console.error("Error al eliminar el producto de la base de datos", error);
+    throw new Error("Error al eliminar el producto de la base de datos");
+  }
+};
 export const getAllProducts = async () => {
   try {
     const products = await Product.find();

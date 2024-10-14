@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { createUser } from "../models/user.model.js";
+import { signup } from "../controller/auth.controller.js";
 import { login, logout } from "../controller/auth.controller.js";
 import { verifyToken } from "../middlewares/auth.middleware.js";
 import { getUserById, addRequestToUser, updateUser } from "../models/user.model.js";
@@ -10,14 +11,7 @@ const router = Router();
 
 
 
-router.post("/signup", async (req, res) => {
-  try {
-    const newUser = await createUser(req.body);
-    res.redirect(`/bienvenido`);
-  } catch (error) {
-    res.status(500).json({ success: false, message: "Error al crear usuario", error: error.message });
-  }
-});
+router.post("/signup", signup);
 router.get('/points/:userId', getTotalPoints);
 
 router.post("/login", login);
@@ -63,9 +57,9 @@ router.get('/requests/all', verifyToken, async (req, res) => {
 
 
 router.put("/me", verifyToken, async (req, res) => {
-  const { name, lastName, doc, phone, address, location } = req.body;
+  const { name, lastName, doc, phone, address, location, type } = req.body;
   
-  if (!name && !lastName && !address && !location && !doc && !phone)  {
+  if (!name && !lastName && !address && !location && !doc && !phone && !type)  {
     return res.status(400).json({ message: 'No se proporcionaron datos para actualizar' });
   }
 
@@ -79,6 +73,7 @@ router.put("/me", verifyToken, async (req, res) => {
     if (phone) updateData.phone = phone;
     if (address) updateData.address = address;
     if (location) updateData.location = location;
+    if (type) updateData.type = type;
 
     const updatedUser = await updateUser(userId, updateData);
     if (!updatedUser) {
