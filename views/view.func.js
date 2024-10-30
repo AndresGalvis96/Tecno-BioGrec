@@ -1,4 +1,22 @@
+function requestLocation() {
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        console.log('Ubicación obtenida:', position);
+        alert('Registro exitoso con ubicación obtenida');
+      },
+      (error) => {
+        console.error('Error al obtener la ubicación:', error);
+        alert('Por favor, habilita la ubicación en la configuración del navegador.');
+      }
+    );
+  } else {
+    alert('Tu navegador no soporta geolocalización.');
+  }
+}
+//requestLocation();
 function loadRequests() {
+
   fetch('/admin/requests/all/clients', {
       method: 'GET',
       headers: {
@@ -84,7 +102,8 @@ function viewRequestDetails(requestId) {
                     <p><strong>Calificación:</strong> ${data.rating || 'N/A'}</p>
                     <h3>Ubicación del Cliente</h3>
                     <div id="map"></div>
-                    <button id="finish-request-button" onclick="finishRequest('${data._id}')">Terminar solicitud</button>
+                    <button id="finish-request-button" onclick="finishRequest('${data._id}', '${data.title}')">Terminar solicitud</button>
+
                 </div>
             `;
 console.log(data.location, "location");
@@ -193,53 +212,87 @@ function clearSelectedProducts() {
   document.getElementById('rating-modal').style.display = 'none';
 }
 
-function finishRequest(requestId) {
-    document.getElementById('rating-modal').style.display = 'block';
+function finishRequest(requestId, requestTitle) {
+  // Condicionar la ventana modal según el tipo de solicitud
+  if (requestTitle === "Recolección de material") {
+      // Mostrar ventana de calificación con productos
+      document.getElementById('rating-modal').style.display = 'block';
 
-    document.getElementById('finish-request-confirm-button').onclick = function() {
-        let totalStars = 0;
-        let rating=0;
-        selectedProducts.forEach(selectedProduct => {
-            const productInList = prctsList.find(p => p.nombre === selectedProduct.nombre);
-            if (productInList) {
-                if (selectedProduct.cantidad==0 || selectedProduct.cantidad == "") {
-                    alert("Debe poner cantidades válidas");
-                    location.reload();
-                }else{
-                    totalStars += productInList.puntos * selectedProduct.cantidad;
-                console.log("Total estrellas ganadas:",productInList, totalStars);
-                rating= totalStars;
-                }
-            }
-        });
-       
-        if (rating<=0) {
-            alert("Ingrese la cantidad");
-            location.reload(); 
-        }else{
-     fetch(`/admin/request/finish/${requestId}`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': 'Bearer ' + document.cookie.replace(/(?:(?:^|.*;\s*)token\s*\=\s*([^;]*).*$)|^.*$/, "$1")
-                },
-                body: JSON.stringify({rating: rating })
-            })
-            .then(response => {
-                if (response.ok) {
-                    alert('Solicitud terminada exitosamente.');
-                    clearSelectedProducts();
-                    loadRequests();
-                } else {
-                    alert('Error al terminar la solicitud.');
-                }
-            })
-            .catch(error => {
-                console.error('Error al terminar la solicitud:', error);
-                alert('Error al terminar la solicitud.');
-            });
-        }
-    }; 
+      document.getElementById('finish-request-confirm-button').onclick = function () {
+          let totalStars = 0;
+          let rating = 0;
+          selectedProducts.forEach(selectedProduct => {
+              const productInList = prctsList.find(p => p.nombre === selectedProduct.nombre);
+              if (productInList) {
+                  if (selectedProduct.cantidad == 0 || selectedProduct.cantidad == "") {
+                      alert("Debe poner cantidades válidas");
+                      location.reload();
+                  } else {
+                      totalStars += productInList.puntos * selectedProduct.cantidad;
+                      console.log("Total estrellas ganadas:", productInList, totalStars);
+                      rating = totalStars;
+                  }
+              }
+          });
+
+          if (rating <= 0) {
+              alert("Ingrese la cantidad");
+              location.reload();
+          } else {
+              fetch(`/admin/request/finish/${requestId}`, {
+                  method: 'POST',
+                  headers: {
+                      'Content-Type': 'application/json',
+                      'Authorization': 'Bearer ' + document.cookie.replace(/(?:(?:^|.*;\s*)token\s*\=\s*([^;]*).*$)|^.*$/, "$1")
+                  },
+                  body: JSON.stringify({ rating: rating })
+              })
+              .then(response => {
+                  if (response.ok) {
+                      alert('Solicitud terminada exitosamente.');
+                      clearSelectedProducts();
+                      loadRequests();
+                  } else {
+                      alert('Error al terminar la solicitud.');
+                  }
+              })
+              .catch(error => {
+                  console.error('Error al terminar la solicitud:', error);
+                  alert('Error al terminar la solicitud.');
+              });
+          }
+      };
+  } else if (requestTitle === "Quejas-Reclamos" || requestTitle === "Sugerencias") {
+      // Mostrar alert con opciones de aceptar o cancelar
+      const confirmation = confirm('¿Está seguro de que ha revisado la solicitud y le ha dado un tratamiento adecuado?');
+      if (confirmation) {
+          // Si el usuario acepta, se marca la solicitud como "terminada"
+          fetch(`/admin/request/finish/${requestId}`, {
+              method: 'POST',
+              headers: {
+                  'Content-Type': 'application/json',
+                  'Authorization': 'Bearer ' + document.cookie.replace(/(?:(?:^|.*;\s*)token\s*\=\s*([^;]*).*$)|^.*$/, "$1")
+              },
+              body: JSON.stringify({ rating: 0 }) // Sin productos, sin estrellas
+          })
+          .then(response => {
+              if (response.ok) {
+                  alert('Solicitud terminada exitosamente.');
+                  loadRequests();
+              } else {
+                  alert('Error al terminar la solicitud.');
+              }
+          })
+          .catch(error => {
+              console.error('Error al terminar la solicitud:', error);
+              alert('Error al terminar la solicitud.');
+          });
+      }
+      // Si el usuario cancela, no se hace nada
+  } else if (requestTitle === "Alquiler-compra de contenedor") {
+      // Llamar a la función específica para manejar contenedores
+      handleContainerRequest(requestId);
+  }
 }
 function closeRatingModal() {
   selectedProducts = []; 
@@ -264,7 +317,7 @@ function loadClients(page = 1) {
     .then(data => {
         const contentArea = document.getElementById('content-area');
         contentArea.innerHTML = '';
-        console.log(data);
+        console.log("data clientes",data);
         
         
         const searchForm = document.createElement('form');
@@ -274,7 +327,7 @@ function loadClients(page = 1) {
             <br></br>
         `;
         contentArea.appendChild(searchForm);
-        allClients = data.clients;
+        allClients = data.users;
         console.log(allClients);
         
         renderClients(allClients);
@@ -539,3 +592,4 @@ function loadProductManagement() {
         });
     }
   });
+  

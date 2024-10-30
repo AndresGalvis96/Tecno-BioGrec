@@ -1,6 +1,6 @@
 body {
     font-family: Arial, sans-serif;
-    background-color: #f4f4f4;
+    background-color: #e8e6e6;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -9,12 +9,13 @@ body {
 }
 
 .log-container {
-    background-color: white; /* Color de fondo del contenedor */
-    padding: 20px; /* Espaciado interno */
-    border-radius: 10px; /* Bordes redondeados */
-    box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.1); /* Sombra sutil */
-    max-width: 400px; /* Ancho máximo */
-    width: 100%; /* Ancho completo */
+    background-color:#8fe3b8;
+    padding: 20px; 
+    border-radius: 10px; 
+box-shadow: #333;
+    max-width: 400px; 
+    width: 90%;
+    color: black;
 }
 
 h2 {
@@ -35,7 +36,7 @@ label {
     display: block;
     margin-bottom: 8px;
     font-weight: bold;
-    color: #555;
+    color: #000000;
 }
 
 input[type="text"],

@@ -7,15 +7,15 @@ import middle from '../middlewares/index.middleware.js'
 import { exports } from "./default.js";
 import { login } from '../controller/auth.controller.js';
 import mongoose from 'mongoose';
-
+import ngrok from 'ngrok';
 export default class Server{
    
 
     async conecctionDb() {
         try {
             await mongoose.connect(exports.mongo, {
-                useNewUrlParser: true,
-                useUnifiedTopology: true,
+            useNewUrlParser: true,
+             useUnifiedTopology: true,
             });
             console.log('Conexión a MongoDB exitosa');
         } catch (error) {
@@ -93,8 +93,13 @@ export default class Server{
     }
 
     runserver(){
-        this.app.listen(this.port ,()=>{
-            console.log("Corriendo en puerto: ", this.port)
+        this.app.listen(this.port,()=>{
+            console.log("Corriendo en puerto: ", this.port);
+            //try {
+               ////console.log(`Túnel HTTPS establecido en: ${url}`);
+            //} catch (err) {
+                 //console.error('Error al conectar Ngrok:', err);
+           //  }
         })
     }
 

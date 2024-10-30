@@ -7,19 +7,21 @@ import { finishRequestById } from '../models/requst.model.js';
 export const listAllClients = async (req, res) => {
   const { page = 1, limit = 10 } = req.query; 
   try {
-    const clients = await User.find({ type: 'cliente' })
-                              .limit(limit * 1)
-                              .skip((page - 1) * limit)
-                              .exec();
-    const count = await User.countDocuments({ type: 'client' });
+    // Excluir usuarios de tipo 'admin'
+    const users = await User.find({ type: { $ne: 'admin' } })
+                            .limit(limit * 1)
+                            .skip((page - 1) * limit)
+                            .exec();
+
+    const count = await User.countDocuments({ type: { $ne: 'admin' } });
 
     res.status(200).json({
-      clients,
+      users,
       totalPages: Math.ceil(count / limit),
       currentPage: page
     });
   } catch (error) {
-    console.error('Error al listar los clientes:', error);
+    console.error('Error al listar los usuarios:', error);
     res.status(500).json({ success: false, message: 'Error en el servidor' });
   }
 };

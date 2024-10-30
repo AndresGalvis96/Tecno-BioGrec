@@ -16,6 +16,7 @@ const requestSchema = new mongoose.Schema({
     kilos: { type: Number, required: true } 
   }],
   fechaTerminacion: { type: Date }, 
+  fechaSugerida: { type: Date },
 }, { timestamps: true });
 
 const Request = mongoose.model('Request', requestSchema);

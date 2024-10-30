@@ -1,3 +1,4 @@
+let loggedInUser = [];
 document.addEventListener('DOMContentLoaded', function() {
     fetch('/auth/me', {
       method: 'GET',
@@ -9,22 +10,26 @@ document.addEventListener('DOMContentLoaded', function() {
     .then(response => response.json())
     .then(data => {
       if (data) {
+        loggedInUser = data;
         const userType = data.type;
         console.log(data.type);
+
         if (userType === 'admin') {
           document.getElementById('mi-perfil-link').style.display = 'none';
           document.getElementById('solicitar-link').style.display = 'none';
           document.getElementById('listar-link').style.display = 'none';
           document.getElementById('asistencia-link').style.display = 'none'; 
-          
+
           document.getElementById('solicitudes-link').style.display = 'block'; 
           document.getElementById('clientes-link').style.display = 'block'; 
+          document.getElementById('contenedores-link').style.display="block";
           loadProductManagement();
         } else {
           document.getElementById('solicitudes-link').style.display = 'none';
           document.getElementById('clientes-link').style.display = 'none';
           document.getElementById('productos-link').style.display='none';
-          pageOne();
+          document.getElementById('contenedores-link').style.display="none";
+          consultarPuntos();
         }
       } else {
         document.getElementById('content-area').innerHTML = '<p>No se pudieron obtener los datos del usuario.</p>';
@@ -34,22 +39,24 @@ document.addEventListener('DOMContentLoaded', function() {
       console.error('Error al obtener los datos del usuario:', error);
       document.getElementById('content-area').innerHTML = '<p>Error al cargar los datos del usuario.</p>';
     });
-
-  });
-  async function pageOne() {
-    //const points = await consultarPuntos();
+});
+function getLoggedInUser() {
+    return loggedInUser;
+}
+  async function pageOne(points) {
+    
+    
     document.getElementById('content-area').innerHTML = `
     <div id="content-area">
-  <div class="points-container">
-    <div class="points-display">
-      <div class="star-icon">⭐</div>
-      <div class="points-info">
-        <h2 class="total-points">1000</h2>
-        <p class="points-label">Puntos acumulados</p> <a onClick="listar();" class="view-points">Ver todos los puntos</a>
-      </div>
-     
-    </div>
+ <div class="points-container">
+  <div class="star-icon">⭐</div>
+  <div class="points-info">
+    <p class="points-label">Puntos</p>
+    <div class="total-points">${points}</div>
+    <div class="divider"></div>
+    <a href="#" class="view-points" onClick="listar();">Ver todos los puntos</a>
   </div>
+</div>
 
   <div class="earn-points-container">
     <h3 class="section-title">Ganar puntos</h3>
@@ -69,14 +76,24 @@ document.addEventListener('DOMContentLoaded', function() {
         <p class="link-subtext">Editar mis datos y mi ubicación</p>
       </div>
     </a>
+
+    <h3 class="section-title">Asistencia</h3>
+    <a href="#" onClick="asistencia();" class="profile-link">
+      <div class="link-icon">🗣️</div>
+      <div class="link-text">
+        Asistencia
+        <p class="link-subtext">Contacto directo con administrador</p>
+      </div>
+    </a>
   </div>
 </div>
 
     `
   }
   async function consultarPuntos() {
-    const userId = document.cookie;
-    console.log(userId);
+    const userD = getLoggedInUser();
+    const userId = userD._id;
+    console.log("puntos",userD._id);
     const response = await fetch(`/auth/points/${userId}`, {
         method: 'GET',
         headers: {
@@ -91,7 +108,9 @@ document.addEventListener('DOMContentLoaded', function() {
         return response.json();
     })
     .then(pointsData => {
-        return pointsData.points; 
+        console.log(pointsData.totalPoints);
+        
+        pageOne(pointsData.totalPoints);
     })
     .catch(error => {
         console.error('Error:', error);
@@ -289,12 +308,68 @@ function profile() {
         document.getElementById('content-area').innerHTML = '<p>Error al cargar los datos del usuario.</p>';
     });
 }
-
 document.getElementById('solicitar-link').addEventListener('click', function(event) {
     event.preventDefault(); 
-    solicitar();
+    req();
  
 });
+function req(){
+    const content =document.getElementById('content-area');
+    content.innerHTML=`
+    <div class="assistance-container">
+    <a href="#" onclick="generarFormularioRecoleccion()">
+        <div class="assistance-option">
+            <div class="icon-container">
+                <div class="icon-circle">
+                     <img src="/img/truck.png" alt="Recolección">
+                </div>
+            </div>
+            <div class="option-text">
+                <h3>Recolección</h3>
+                <p>Solicitar recolección de material reciclable.</p>
+            </div>
+        </div>
+    </a>
+    <a href="#" onclick="displayContainers()">
+        <div class="assistance-option">
+            <div class="icon-container">
+                <div class="icon-circle">
+                    <img src="/img/can.png" alt="trash">
+                </div>
+            </div>
+            <div class="option-text">
+                <h3>Adquirir contenedor</h3>
+                <p>Comprar o alquilar contenedores de materiales.</p>
+            </div>
+        </div>
+    </a>
+    <a href="#" onclick="sugerencia()">
+        <div class="assistance-option">
+            <div class="icon-container">
+                <div class="icon-circle">
+                    <img src="/img/suge.png" alt="sug">
+                </div>
+            </div>
+            <div class="option-text">
+                <h3>Sugerencias</h3>
+                <p>Ayúdanos a mejorar con tus opiniones e ideas.</p>
+            </div>
+        </div>
+    </a>
+        <div class="assistance-option">
+            <div class="icon-container">
+                <div class="icon-circle">
+                     <img src="/img/queja.PNG" alt="queja">
+                </div>
+            </div>
+            <div class="option-text">
+                <h3>Quejas-Reclamos</h3>
+                <p>Cuéntanos qué ha sucedido, detalla lo ocurrido.</p>
+            </div>
+        </div>
+    </div>
+    ` 
+}
 function solicitar() {
     document.getElementById('content-area').innerHTML = `
     <div id="requ-content">
@@ -383,7 +458,6 @@ function solicitar() {
         });
     }
 }
-
 document.getElementById('listar-link').addEventListener('click', function(event) {
    event.preventDefault();
    listar();
@@ -486,11 +560,11 @@ function asistencia() {
                 <p>Descubre cómo redimir tus puntos.</p>
             </div>
         </div>
-
+    <a href="#" onclick="sendWhatsAppMessage()">
         <div class="assistance-option">
             <div class="icon-container">
                 <div class="icon-circle">
-                    <img src="/img/assist.png" alt="trash">
+                    <img src="/img/assist.png" alt="whatsapp">
                 </div>
             </div>
             <div class="option-text">
@@ -498,7 +572,7 @@ function asistencia() {
                 <p>Comunícate con nosotros a través de whatsapp.</p>
             </div>
         </div>
-
+    </a>
         <div class="assistance-option">
             <div class="icon-container">
                 <div class="icon-circle">
@@ -512,4 +586,399 @@ function asistencia() {
         </div>
     </div>
     `
+}function generarFormularioRecoleccion() {
+    const contentArea = document.getElementById('content-area');
+    contentArea.innerHTML = `
+        <h2>Recolección de materiales reciclables</h2>
+        <form id="recoleccion-form">
+            <!-- Fila de productos y peso -->
+            <div style="display: flex; gap: 20px; margin-bottom: 15px;">
+                <div style="flex: 2;">
+                    <label for="producto-select">Producto:</label>
+                    <select id="producto-select" required>
+                        <option value="">Seleccione un producto</option>
+                        <!-- Productos desde la BBDD se insertarán aquí -->
+                    </select>
+                </div>
+                <div style="flex: 1;">
+                    <label for="peso-input">Peso (Kg):</label>
+                    <input type="text" id="peso-input" placeholder="# Kg" required style="width: 100%;" />
+                </div>
+            </div>
+            
+            <button type="button" id="agregar-producto" style="margin-bottom: 15px;">Agregar</button>
+            
+            <!-- Fila de Teléfono y Fijar Fecha -->
+            <div style="display: flex; gap: 20px; margin-bottom: 1px;">
+                <div style="flex: 2;">
+                    <label for="telefono-input">Teléfono:</label>
+                    <input type="text" id="telefono-input" placeholder="Ingrese su teléfono" required style="width: 100%;" />
+                </div>
+                <div style="flex: 1;">
+                    <label for="fecha-checkbox">
+                        <input type="checkbox" id="fecha-checkbox" /> Fijar Fecha
+                    </label>
+                    <input type="date" id="fecha-input" style="width: 100%;" disabled />
+                </div>
+            </div>
+
+            <!-- Contenedor de productos agregados -->
+            <h3>Productos agregados:</h3>
+            <div id="productos-lista">
+                <div style="display: flex; gap: 20px; font-weight: bold; margin-bottom: 10px; border: 1px solid #ccc;">
+                    <div style="flex: 1;">#</div>
+                    <div style="flex: 2;">Nombre</div>
+                    <div style="flex: 1;">Peso(Kg)</div>
+                </div>
+                <!-- Productos agregados se mostrarán aquí -->
+            </div>
+
+            <!-- Observaciones -->
+            <div style="margin-top: 20px;">
+                <label for="observaciones-textarea">Observaciones:</label>
+                <textarea id="observaciones-textarea" placeholder="Ingrese observaciones" style="width: 100%; height: 100px;"></textarea>
+            </div>
+            
+            <!-- Checkbox para usar ubicación actual -->
+            <div style="margin-top: 15px;">
+                <label>
+                    <input type="checkbox" id="ubicacion-actual-checkbox" /> ¿Usar ubicación actual para esta solicitud?
+                </label>
+            </div>
+
+            <!-- Botón de registrar solicitud -->
+            <button type="button" id="registrar-solicitud" style="margin-top: 20px;">Registrar Solicitud</button>
+        </form>
+    `;
+
+    document.getElementById('fecha-checkbox').addEventListener('change', function() {
+        const fechaInput = document.getElementById('fecha-input');
+        if (this.checked) {
+            fechaInput.disabled = false;
+        } else {
+            fechaInput.disabled = true;
+        }
+    });
+
+    let productosAgregados = [];
+    document.getElementById('agregar-producto').addEventListener('click', function() {
+        const productoSelect = document.getElementById('producto-select');
+        const pesoInput = document.getElementById('peso-input');
+        const peso = pesoInput.value.trim();
+
+        if (productoSelect.value === "" || peso === "" || isNaN(peso) || peso <= 0) {
+            alert("Seleccione un producto y proporcione un peso válido.");
+            pesoInput.style.border = "2px solid red";
+            return;
+        }
+
+        pesoInput.style.border = "";
+
+        productosAgregados.push({ nombre: productoSelect.value, peso: peso });
+        actualizarListaProductos();
+
+        productoSelect.value = "";
+        pesoInput.value = "";
+    });
+
+    function actualizarListaProductos() {
+        const productosLista = document.getElementById('productos-lista');
+        productosLista.innerHTML = `
+            <div style="display: flex; gap: 20px; font-weight: bold; margin-bottom: 10px;">
+                <div style="flex: 1;">#</div>
+                <div style="flex: 2;">Nombre</div>
+                <div style="flex: 1;">Peso(Kg)</div>
+            </div>
+        `;
+
+        productosAgregados.forEach((producto, index) => {
+            productosLista.innerHTML += `
+                <div style="display: flex; gap: 20px; border: 1px solid #ccc; pading: 2px">
+                    <div style="flex: 1;">${index + 1}</div>
+                    <div style="flex: 2;">${producto.nombre}</div>
+                    <div style="flex: 1;">${producto.peso} Kg</div>
+                </div>
+            `;
+        });
+    }
+
+    document.getElementById('registrar-solicitud').addEventListener('click', function() {
+        const telefono = document.getElementById('telefono-input').value.trim();
+        const fechaFijada = document.getElementById('fecha-checkbox').checked ? document.getElementById('fecha-input').value : null;
+        const observaciones = document.getElementById('observaciones-textarea').value.trim();
+        const usarUbicacion = document.getElementById('ubicacion-actual-checkbox').checked;
+
+        if (!telefono) {
+            alert("Ingrese su teléfono.");
+            return;
+        }
+
+        let detalle = `Teléfono: ${telefono}\n`;
+        if (fechaFijada) {
+            detalle += `Fecha Fijada: ${fechaFijada}\n`;
+        }
+        detalle += `Observaciones: ${observaciones}\nProductos:\n`;
+        productosAgregados.forEach((producto, index) => {
+            detalle += `${producto.nombre} Peso: ${producto.peso} Kg - \n`;
+        });
+console.log("Detalle",detalle);
+
+        let location = null;
+        if (usarUbicacion && navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(function(position) {
+                location = {
+                    latitude: position.coords.latitude,
+                    longitude: position.coords.longitude
+                };
+                enviarSolicitud(detalle, location);
+            });
+        } else {
+            enviarSolicitud(detalle, location);
+        }
+    });
+
+    function enviarSolicitud(detalle, location) {
+        const requestData = {
+            title: "Recolección de material",
+            detail: detalle,
+            location: location,
+            productos: productosAgregados
+        };
+
+        fetch('/auth/requests', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + document.cookie.replace(/(?:(?:^|.*;\s*)token\s*\=\s*([^;]*).*$)|^.*$/, "$1")
+            },
+            body: JSON.stringify(requestData)
+        })
+        .then(response => response.json())
+        .then(data => {
+            alert("Solicitud registrada exitosamente.");
+            document.getElementById('recoleccion-form').reset();
+            productosAgregados = [];
+            actualizarListaProductos();
+        })
+        .catch(error => {
+            console.error("Error al registrar la solicitud:", error);
+            alert("Error al registrar la solicitud.");
+        });
+    }
+
+    cargarProductos();
 }
+function cargarProductos() {
+    event.preventDefault();
+    fetch('admin/products', {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + document.cookie.replace(/(?:(?:^|.*;\s*)token\s*\=\s*([^;]*).*$)|^.*$/, "$1")
+        }
+    }) 
+    
+      .then(response => response.json())
+      .then(data => {
+        const productos = data.products;
+        const select = document.getElementById('producto-select');
+        productos.forEach(producto => {
+            const option = document.createElement('option');
+            option.value = producto.nombre;
+            option.text = producto.nombre;
+            select.appendChild(option);
+        });
+      })
+      .catch(error => {
+        console.error('Error al obtener productos:', error);
+      });
+}
+function sugerencia() {
+    const contentArea = document.getElementById('content-area');
+    contentArea.innerHTML = `
+        <h2>Datos necesarios</h2>
+        <form id="sugerencia-form">
+            <!-- Fila de Municipio y Teléfono -->
+            <div style="display: flex; gap: 20px; margin-bottom: 15px;">
+                <div style="flex: 1;">
+                    <label for="municipio-input">Municipio:</label>
+                    <input type="text" id="municipio-input" placeholder="Municipio" required style="width: 100%;" />
+                </div>
+                <div style="flex: 1;">
+                    <label for="telefono-input">Teléfono:</label>
+                    <input type="text" id="telefono-input" placeholder="Teléfono" required style="width: 100%;" />
+                </div>
+            </div>
+
+            <!-- Fila de Correo Opcional -->
+            <div style="display: flex; align-items: center; gap: 20px; margin-bottom: 15px;">
+                <div style="flex: 1;">
+                    <label for="correo-checkbox">
+                        <input type="checkbox" id="correo-checkbox" /> Incluir Correo de Contacto
+                    </label>
+                    <input type="email" id="correo-input" placeholder="Correo de Contacto" style="width: 100%;height:25px;"  disabled />
+                </div>
+            </div>
+
+            <!-- Text area para la sugerencia -->
+            <div style="margin-bottom: 20px;">
+                <label for="sugerencia-textarea">Contenido de la Sugerencia:</label>
+                <textarea id="sugerencia-textarea" placeholder="Escribe tu sugerencia aquí..." style="width: 100%; height: 100px;" required></textarea>
+            </div>
+
+            <!-- Botón de enviar sugerencia -->
+            <button type="button" id="enviar-sugerencia" style="margin-top: 20px;">Enviar Sugerencia</button>
+        </form>
+    `;
+
+    document.getElementById('correo-checkbox').addEventListener('change', function() {
+        const correoInput = document.getElementById('correo-input');
+        correoInput.disabled = !this.checked;
+    });
+
+    document.getElementById('enviar-sugerencia').addEventListener('click', function() {
+        const municipio = document.getElementById('municipio-input').value.trim();
+        const telefono = document.getElementById('telefono-input').value.trim();
+        const incluirCorreo = document.getElementById('correo-checkbox').checked;
+        const correo = incluirCorreo ? document.getElementById('correo-input').value.trim() : '';
+        const sugerencia = document.getElementById('sugerencia-textarea').value.trim();
+
+        if (!municipio || !telefono || !sugerencia) {
+            alert("Por favor, complete todos los campos requeridos.");
+            return;
+        }
+
+        let detalle = `Municipio: ${municipio}, Teléfono: ${telefono}\n`;
+        if (incluirCorreo && correo) {
+            detalle += `Correo de Contacto: ${correo}\n`;
+        }
+        detalle += `Sugerencia: ${sugerencia}`;
+
+        enviarSugerencia(detalle);
+    });
+
+    function enviarSugerencia(detalle) {
+        const requestData = {
+            title: "Sugerencias",
+            detail: detalle
+        };
+
+        fetch('/auth/requests', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + document.cookie.replace(/(?:(?:^|.*;\s*)token\s*\=\s*([^;]*).*$)|^.*$/, "$1")
+            },
+            body: JSON.stringify(requestData)
+        })
+        .then(response => response.json())
+        .then(data => {
+            alert("Sugerencia enviada exitosamente.");
+
+            document.getElementById('sugerencia-form').reset();
+        })
+        .catch(error => {
+            console.error("Error al enviar la sugerencia:", error);
+            alert("Error al enviar la sugerencia.");
+        });
+    }
+}
+async function displayContainers() {
+    const contentArea = document.getElementById("content-area");
+    contentArea.innerHTML = ''; 
+
+    try {
+        const response = await fetch('/user/containers');
+        const containers = await response.json();
+
+        containers.forEach(container => {
+            const containerDiv = document.createElement('div');
+            containerDiv.classList.add('container-item');
+            containerDiv.innerHTML = `
+                <img src="${container.image}" alt="${container.nombre}" class="container-image">
+                <div class="container-info">
+                    <h3>${container.nombre}</h3>
+                    <p>Tipo: ${container.type}</p>
+                    <p>Tamaño: ${container.size}</p>
+                    <p>Precio: $${container.price}</p>
+                    <p>Disponibilidad: ${container.availability ? 'Disponible' : 'No disponible'}</p>
+                </div>
+            `;
+            contentArea.appendChild(containerDiv);
+
+            containerDiv.addEventListener('click', () => openContainerModal(container));
+        });
+    } catch (error) {
+        console.error('Error al cargar los contenedores:', error);
+    }
+}
+
+function openContainerModal(container) {
+    const modal = document.createElement('div');
+    modal.classList.add('modalc');
+
+    const modalType = container.type === 'venta' ? 'Comprar' : 'Alquilar';
+
+    modal.innerHTML = `
+        <div class="modal-contain">
+            <h2>${modalType} este contenedor</h2>
+            <img src="${container.image}" alt="${container.nombre}" class="modal-image">
+            <p>Nombre: ${container.nombre}</p>
+            <p>Tipo: ${container.type}</p>
+            <p>Tamaño: ${container.size}</p>
+            <p>Precio: $${container.price}</p>
+            <p>Ubicación: ${container.location}</p>
+            <p>Descripción: ${container.description}</p>
+            <label for="phone">Número de teléfono:</label>
+            <input type="tel" id="phone" name="phone" required><br>
+            <br>
+            <label>
+                <input type="checkbox" id="use-current-location">
+                ¿Recibir en mi ubicación actual?
+            </label><br>
+            <br>
+            <button id="sendRequestButton">Enviar solicitud</button>
+            <button id="closeModalButton">Cerrar</button>
+        </div>
+    `;
+
+    document.body.appendChild(modal);
+
+    document.getElementById('sendRequestButton').addEventListener('click', async () => {
+        const detail = document.getElementById('phone').value;
+        const useCurrentLocation = document.getElementById('use-current-location').checked;
+
+        const requestData = {
+            title: `${modalType} de contenedor`,
+            detail,
+            containerId: container._id,
+            location: useCurrentLocation ? 'Ubicación actual del usuario' : container.location
+        };
+
+        await fetch('/auth/requests', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + document.cookie.replace(/(?:(?:^|.*;\s*)token\s*\=\s*([^;]*).*$)|^.*$/, "$1")
+            },
+            body: JSON.stringify(requestData)
+        });
+
+        document.body.removeChild(modal);
+    });
+
+    document.getElementById('closeModalButton').addEventListener('click', () => {
+        document.body.removeChild(modal);
+    });
+}
+function sendWhatsAppMessage() {
+    const phoneNumber = "573163313942"; // Número de WhatsApp con el código de país
+    const message = encodeURIComponent("Hola, me gustaría establecer contacto"); // Mensaje predefinido
+
+    // Crear la URL de WhatsApp con el número y el mensaje
+    const whatsappUrl = `https://wa.me/${phoneNumber}?text=${message}`;
+
+    // Redirigir al enlace de WhatsApp
+    window.open(whatsappUrl, "_blank"); // Abre el enlace en una nueva pestaña
+}
+

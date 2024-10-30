@@ -2,7 +2,18 @@ import { Router } from 'express';
 import { getUserByEmail } from '../models/user.model.js';
 import { getAllClients } from '../models/user.model.js';
 import { verifyToken } from "../middlewares/auth.middleware.js";
+import { createContainer, getAllContainers,getContainerById,updateContainer,deleteContainer} from '../controller/container.controller.js';
 const router = Router();
+
+router.post('/containers', createContainer);
+
+router.get('/containers', getAllContainers);
+
+router.get('/containers/:id', getContainerById);
+
+router.put('/containers/:id', updateContainer);
+
+router.delete('/containers/:id', deleteContainer);
 
 router.get('/get',verifyToken, async (req, res) => {
   const { email } = req.body;
