@@ -1,21 +1,25 @@
 import express from "express";
-import bodyParser from "body-parser"
+import bodyParser from "body-parser";
 import cookieParser from 'cookie-parser';
 import router from "../routes/index.routes.js";
 import jwt from 'jsonwebtoken';
-import middle from '../middlewares/index.middleware.js'
+import middle from '../middlewares/index.middleware.js';
 import { exports } from "./default.js";
 import { login } from '../controller/auth.controller.js';
 import mongoose from 'mongoose';
 import ngrok from 'ngrok';
-export default class Server{
-   
+import path from 'path';
+import { fileURLToPath } from 'url';
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+export default class Server {
     async conecctionDb() {
         try {
             await mongoose.connect(exports.mongo, {
-            useNewUrlParser: true,
-             useUnifiedTopology: true,
+                useNewUrlParser: true,
+                useUnifiedTopology: true,
             });
             console.log('Conexión a MongoDB exitosa');
         } catch (error) {
@@ -23,25 +27,21 @@ export default class Server{
             process.exit(1);
         }
     }
-    constructor(){
 
-        this.app=express();
-        this.port= exports.port
+    constructor() {
+        this.app = express();
+        this.port = exports.port;
     }
-    
 
-    middleware(){
+    middleware() {
         this.app.use(bodyParser.json());
         this.app.use(middle);
         this.app.use(express.json());
         this.app.use(cookieParser());
-        this.app.set('view engine', 'ejs');
         this.app.use(express.static('views'));
-   
     }
-    
-    routes(){
 
+    routes() {
         const verificarToken = (req, res, next) => {
             const token = req.cookies.token;
 
@@ -58,21 +58,18 @@ export default class Server{
                 return res.status(401).send('Acceso no autorizado');
             }
         };
+
         this.app.use(express.urlencoded({ extended: true }));
 
-
         this.app.post('/auth/login', login);
-
-       this.app.use("/img",express.static('img'));
+        this.app.use("/img", express.static('img'));
         this.app.use(router);
 
-   
         this.app.get('/', (req, res) => {
-            res.render('index', { title: 'Página de inicio' });
+            res.sendFile(path.join(__dirname, '../views/index.html'));
         });
 
-        this.app.get('/bienvenido', (req, res) => {
-
+        this.app.get('/bienvenido', verificarToken, (req, res) => {
             const token = req.cookies.token;
 
             if (!token) {
@@ -80,30 +77,22 @@ export default class Server{
             }
 
             try {
-
-                const decoded = jwt.verify(token, exports.secret);
-
-                res.render('bienvenido', { title: '¡Bienvenido!', token: token });
+                jwt.verify(token, exports.secret);
+                res.sendFile(path.join(__dirname, '../views/bienvenido.html'));
             } catch (error) {
                 console.error('Error de autenticación:', error);
                 return res.status(401).send('Acceso no autorizado');
             }
         });
-
     }
 
-    runserver(){
-        this.app.listen(this.port,()=>{
+    runserver() {
+        this.app.listen(this.port, () => {
             console.log("Corriendo en puerto: ", this.port);
-            //try {
-               ////console.log(`Túnel HTTPS establecido en: ${url}`);
-            //} catch (err) {
-                 //console.error('Error al conectar Ngrok:', err);
-           //  }
-        })
+        });
     }
 
-    load(){
+    load() {
         this.conecctionDb();
         this.middleware();
         this.routes();
