@@ -37,16 +37,28 @@ export const getContainerById = async (req, res) => {
 };
 export const updateContainer = async (req, res) => {
     try {
-        const container = await Container.findByIdAndUpdate(req.params.id, req.body, { new: true });
+        const { availability, ...otherUpdates } = req.body; // Separa availability de otros datos
+
+        // Si `availability` está definido y se desea actualizar
+        if (availability !== undefined) {
+            // Actualiza la disponibilidad del contenedor
+            await Container.findByIdAndUpdate(req.params.id, { availability: false }, { new: true });
+        }
+
+        // Actualiza los otros campos del contenedor
+        const container = await Container.findByIdAndUpdate(req.params.id, otherUpdates, { new: true });
+
         if (!container) {
             return res.status(404).json({ success: false, message: 'Contenedor no encontrado' });
         }
+
         res.status(200).json({ success: true, message: 'Contenedor actualizado exitosamente', container });
     } catch (error) {
         console.error('Error al actualizar el contenedor:', error);
         res.status(400).json({ success: false, message: 'Error al actualizar el contenedor' });
     }
 };
+
 
 export const deleteContainer = async (req, res) => {
     try {

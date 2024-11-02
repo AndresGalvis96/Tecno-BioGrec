@@ -10,11 +10,13 @@ const requestSchema = new mongoose.Schema({
   },
   status: { type: String, default: 'pendiente' }, 
   rating: { type: Number, min: 1, max: 100 },
+  containerId: { type: mongoose.Schema.Types.ObjectId, ref: 'Container', default: null },
   tipo: { type: String }, 
   productos: [{
     producto: { type: String, required: true }, 
     kilos: { type: Number, required: true } 
   }],
+  
   fechaTerminacion: { type: Date }, 
   fechaSugerida: { type: Date },
 }, { timestamps: true });
@@ -64,6 +66,8 @@ export const getRequestsByClientId = async (userId) => {
   }
 };
 export const createRequest = async (userId, requestData) => {
+  console.log("model req data",requestData);
+  
   try {
     const newRequest = new Request({
       userId,
@@ -72,6 +76,7 @@ export const createRequest = async (userId, requestData) => {
       location: requestData.location,
       status: requestData.status || 'pendiente',
       rating: requestData.rating || null,
+      containerId: requestData.containerId || null
     });
     await newRequest.save();
     return newRequest;
@@ -88,7 +93,9 @@ export const getRequestById = async (requestId) => {
       return null;
     }
 
-    const request = await Request.findById(requestId).populate('userId', 'name email');
+    const request = await Request.findById(requestId)
+    .populate('userId', 'name email')
+    .populate('containerId');
     
     if (!request) {
       console.log("Solicitud no encontrada");
@@ -106,12 +113,12 @@ export const finishRequestById = async (requestId, rating, productos, fechaTermi
     const request = await Request.findByIdAndUpdate(
       requestId,
       {
-        status: 'terminado',   // Cambia el estado a terminado
-        rating: rating,        // Actualiza la calificación
-        productos: productos,  // Actualiza los productos y kilos
-        fechaTerminacion: fechaTerminacion // Actualiza la fecha de terminación
+        status: 'terminado',   
+        rating: rating,        
+        productos: productos,  
+        fechaTerminacion: fechaTerminacion
       },
-      { new: true }  // Retorna el documento actualizado
+      { new: true }  
     );
 
     if (!request) {

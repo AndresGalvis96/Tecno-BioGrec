@@ -34,27 +34,30 @@ export const listAllClients = async (req, res) => {
 export const login = async (req, res) => {
   const { email, password, secretKey } = req.body; 
   try {
-    res.clearCookie('token');
-    if (!email || !password) {
-      return res.status(400).json({ success: false, message: "El campo 'email' y 'password' son obligatorios" });
-    }
-    const user = await getUserByEmail(email);
-    if (!user) {
-      return res.status(401).json({ success: false, msg: "Credenciales email inválidas" });
-    }
-    const validPassword = await comparePassword(password, user.password);
-    if (!validPassword) {
-      return res.status(401).json({ success: false, message: "Credenciales password inválidas" });
-    }
-    const userType = secretKey === 'admin' ? 'admin' : user.type;
-    const token = jwt.sign({ userId: user._id, type: userType }, exports.secret, { expiresIn: '1h' });
-    res.cookie('token', token, { httpOnly: true });
-    return res.redirect(`/bienvenido`);
+      res.clearCookie('token');
+      if (!email || !password) {
+          return res.status(400).json({ success: false, message: "El campo 'email' y 'password' son obligatorios" });
+      }
+      const user = await getUserByEmail(email);
+      if (!user) {
+          return res.status(401).json({ success: false, message: "Credenciales email inválidas" });
+      }
+      const validPassword = await comparePassword(password, user.password);
+      if (!validPassword) {
+          return res.status(401).json({ success: false, message: "Credenciales password inválidas" });
+      }
+      
+      const userType = secretKey === 'admin' ? 'admin' : user.type;
+      const token = jwt.sign({ userId: user._id, type: userType }, exports.secret, { expiresIn: '1h' });
+      res.cookie('token', token, { httpOnly: true });
+      
+      return res.json({ success: true, message: "Inicio de sesión exitoso" });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ success: false, message: "Error en el servidor" });
+      console.error(error);
+      return res.status(500).json({ success: false, message: "Error en el servidor" });
   }
 };
+
 
 export const signup = async (req, res) => {
   try {
@@ -98,6 +101,8 @@ export const logout = (req, res) => {
 };
 
 export const createRequest = async (userId, requestData) => {
+  console.log("ceate controller",requestData);
+  
   try {
     const newRequest = new Request({
       userId,
@@ -106,6 +111,7 @@ export const createRequest = async (userId, requestData) => {
       location: requestData.location,
       status: requestData.status || 'pendiente',
       rating: requestData.rating || null,
+      containerId: requestData.containerId || null
     });
     await newRequest.save();
     return newRequest;

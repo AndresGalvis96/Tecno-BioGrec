@@ -30,3 +30,29 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 });
+document.getElementById('loginForm').onsubmit = async (event) => {
+    event.preventDefault(); 
+
+    const formData = new FormData(event.target);
+    const data = Object.fromEntries(formData.entries());
+
+    try {
+        const response = await fetch(event.target.action, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        });
+
+        const result = await response.json();
+
+        if (!result.success) {
+            alert("Email o contraseña incorrectos"); 
+        } else {
+            window.location.href = '/bienvenido'; 
+        }
+    } catch (error) {
+        alert("Error en la conexión: " + error.message);
+    }
+};

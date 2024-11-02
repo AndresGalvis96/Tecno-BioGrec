@@ -28,12 +28,11 @@ router.get("/me", verifyToken, async (req, res) => {
     res.status(500).json({ message: "Error al obtener datos del usuario", error: error.message });
   }
 });
-
 router.post('/requests', verifyToken, async (req, res) => {
   try {
     const userId = req.user.userId; 
-    const { title, detail, location } = req.body;
-    const newRequest = await createRequest(userId, { title, detail, location });
+    const { title, detail, location, containerId } = req.body;  
+    const newRequest = await createRequest(userId, { title, detail, location, containerId }); 
     res.status(201).json(newRequest);
   } catch (error) {
     res.status(500).json({ message: "Error al crear la solicitud.", error: error.message });

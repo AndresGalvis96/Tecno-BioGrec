@@ -23,12 +23,14 @@ document.addEventListener('DOMContentLoaded', function() {
           document.getElementById('solicitudes-link').style.display = 'block'; 
           document.getElementById('clientes-link').style.display = 'block'; 
           document.getElementById('contenedores-link').style.display="block";
+          document.getElementById('premios-link').style.display="block";
           loadProductManagement();
         } else {
           document.getElementById('solicitudes-link').style.display = 'none';
           document.getElementById('clientes-link').style.display = 'none';
           document.getElementById('productos-link').style.display='none';
           document.getElementById('contenedores-link').style.display="none";
+          document.getElementById('premios-link').style.display="none";
           consultarPuntos();
         }
       } else {
@@ -54,7 +56,7 @@ function getLoggedInUser() {
     <p class="points-label">Puntos</p>
     <div class="total-points">${points}</div>
     <div class="divider"></div>
-    <a href="#" class="view-points" onClick="listar();">Ver todos los puntos</a>
+    <a href="#" class="view-points" onClick="premios();">Redemir puntos</a>
   </div>
 </div>
 
@@ -90,6 +92,17 @@ function getLoggedInUser() {
 
     `
   }
+let userPoints = 0; 
+function premios() {
+    listPremios();
+}
+function setUserPoints(points) {
+    userPoints = points; 
+}
+
+function getUserPoints() {
+    return userPoints; 
+}
   async function consultarPuntos() {
     const userD = getLoggedInUser();
     const userId = userD._id;
@@ -109,7 +122,7 @@ function getLoggedInUser() {
     })
     .then(pointsData => {
         console.log(pointsData.totalPoints);
-        
+        setUserPoints(pointsData.totalPoints);
         pageOne(pointsData.totalPoints);
     })
     .catch(error => {
@@ -475,7 +488,7 @@ function listar(){
         const requestsList = document.getElementById('content-area');
         requestsList.innerHTML = ''; 
         const titl= document.createElement('h2');
-        titl.innerHTML='<h3>Solicitudes</h3>';
+        titl.innerHTML='<a onclick="gooBack();">X</a> <h3>Solicitudes</h3>';
         if (data && data.length > 0) {
             console.log(data);
             requestsList.appendChild(titl);
@@ -487,7 +500,7 @@ function listar(){
             
                 const requestElement = document.createElement('div');
                 requestElement.innerHTML = `
-  
+                
                 <div class="request-card">
                     <div class="request-title">${request.title}</div>
                     <div class="request-date">${formattedDate}</div>
@@ -536,6 +549,8 @@ document.getElementById('asistencia-link').addEventListener('click',function(eve
 function asistencia() {
     const content =document.getElementById('content-area');
     content.innerHTML=`
+    <a onclick="gooBack();">X</a>
+    <a onclick="displayContainers();">
     <div class="assistance-container">
         <div class="assistance-option">
             <div class="icon-container">
@@ -548,7 +563,8 @@ function asistencia() {
                 <p>Compra o alquila un contenedor.</p>
             </div>
         </div>
-
+        </a>
+        <a onclick="listPremios();">
         <div class="assistance-option">
             <div class="icon-container">
                 <div class="icon-circle">
@@ -560,6 +576,7 @@ function asistencia() {
                 <p>Descubre cómo redimir tus puntos.</p>
             </div>
         </div>
+        </a>
     <a href="#" onclick="sendWhatsAppMessage()">
         <div class="assistance-option">
             <div class="icon-container">
@@ -589,6 +606,7 @@ function asistencia() {
 }function generarFormularioRecoleccion() {
     const contentArea = document.getElementById('content-area');
     contentArea.innerHTML = `
+    <a onclick="back()">X</a>
         <h2>Recolección de materiales reciclables</h2>
         <form id="recoleccion-form">
             <!-- Fila de productos y peso -->
@@ -650,7 +668,7 @@ function asistencia() {
             <button type="button" id="registrar-solicitud" style="margin-top: 20px;">Registrar Solicitud</button>
         </form>
     `;
-
+    
     document.getElementById('fecha-checkbox').addEventListener('change', function() {
         const fechaInput = document.getElementById('fecha-input');
         if (this.checked) {
@@ -765,8 +783,11 @@ console.log("Detalle",detalle);
             alert("Error al registrar la solicitud.");
         });
     }
-
+   
     cargarProductos();
+}
+function back() {
+    req();
 }
 function cargarProductos() {
     event.preventDefault();
@@ -796,6 +817,7 @@ function cargarProductos() {
 function sugerencia() {
     const contentArea = document.getElementById('content-area');
     contentArea.innerHTML = `
+    <a onclick="req();">X</a>
         <h2>Datos necesarios</h2>
         <form id="sugerencia-form">
             <!-- Fila de Municipio y Teléfono -->
@@ -885,7 +907,7 @@ function sugerencia() {
 }
 async function displayContainers() {
     const contentArea = document.getElementById("content-area");
-    contentArea.innerHTML = ''; 
+    contentArea.innerHTML = '<a onclick="req();">X</a>'; 
 
     try {
         const response = await fetch('/user/containers');
@@ -947,14 +969,16 @@ function openContainerModal(container) {
     document.getElementById('sendRequestButton').addEventListener('click', async () => {
         const detail = document.getElementById('phone').value;
         const useCurrentLocation = document.getElementById('use-current-location').checked;
-
+        //const containerId = container._id;
+        console.log("container id", container._id);
+        
         const requestData = {
-            title: `${modalType} de contenedor`,
+            title: `${modalType} contenedor`,
             detail,
             containerId: container._id,
             location: useCurrentLocation ? 'Ubicación actual del usuario' : container.location
         };
-
+        console.log("Datos de solicitud que se enviarán:", requestData); 
         await fetch('/auth/requests', {
             method: 'POST',
             headers: {
@@ -981,4 +1005,23 @@ function sendWhatsAppMessage() {
     // Redirigir al enlace de WhatsApp
     window.open(whatsappUrl, "_blank"); // Abre el enlace en una nueva pestaña
 }
+function gooBack() {
+    window.location.href = "/bienvenido"; 
+}
+const contentArea = document.getElementById("content-area");
+let contentHistory = []; 
 
+function updateContent(newContent) {
+    // Guarda el contenido actual antes de actualizarlo
+    contentHistory.push(contentArea.innerHTML);
+    contentArea.innerHTML = newContent;
+}
+
+function goBack() {
+    // Verifica si hay contenido en el historial para regresar
+    if (contentHistory.length > 0) {
+        contentArea.innerHTML = contentHistory.pop(); // Recupera el último contenido
+    } else {
+        alert("No hay más contenido anterior.");
+    }
+}

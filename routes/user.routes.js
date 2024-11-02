@@ -3,6 +3,14 @@ import { getUserByEmail } from '../models/user.model.js';
 import { getAllClients } from '../models/user.model.js';
 import { verifyToken } from "../middlewares/auth.middleware.js";
 import { createContainer, getAllContainers,getContainerById,updateContainer,deleteContainer} from '../controller/container.controller.js';
+import { 
+  createPremio, 
+  updatePremio, 
+  deletePremio, 
+  getPremioById, 
+  getAllPremios,
+  redeemPremio
+} from '../controller/gift.controller.js';
 const router = Router();
 
 router.post('/containers', createContainer);
@@ -14,6 +22,17 @@ router.get('/containers/:id', getContainerById);
 router.put('/containers/:id', updateContainer);
 
 router.delete('/containers/:id', deleteContainer);
+
+router.post('/premios', createPremio);
+
+router.put('/premios/:id', updatePremio);
+
+router.delete('/premios/:id', deletePremio);
+
+router.get('/premios/:id', getPremioById);
+
+router.get('/premios', getAllPremios);
+router.post('/premios/:id/redeem', redeemPremio);
 
 router.get('/get',verifyToken, async (req, res) => {
   const { email } = req.body;

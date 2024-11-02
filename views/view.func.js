@@ -16,7 +16,6 @@ function requestLocation() {
 }
 //requestLocation();
 function loadRequests() {
-
   fetch('/admin/requests/all/clients', {
       method: 'GET',
       headers: {
@@ -93,7 +92,7 @@ function viewRequestDetails(requestId) {
             
             contentArea.innerHTML = `
                 <div id="request-details">
-                 <a href="" onclick="${closeRatingModal()}">×</a>
+                 <a href="#" onclick="loadRequests()">×</a>
                     <h2>Detalles de la Solicitud</h2>
                     <p><strong>Título:</strong> ${data.title}</p>
                     <p><strong>Detalle:</strong> ${data.detail}</p>
@@ -213,9 +212,7 @@ function clearSelectedProducts() {
 }
 
 function finishRequest(requestId, requestTitle) {
-  // Condicionar la ventana modal según el tipo de solicitud
   if (requestTitle === "Recolección de material") {
-      // Mostrar ventana de calificación con productos
       document.getElementById('rating-modal').style.display = 'block';
 
       document.getElementById('finish-request-confirm-button').onclick = function () {
@@ -226,7 +223,6 @@ function finishRequest(requestId, requestTitle) {
               if (productInList) {
                   if (selectedProduct.cantidad == 0 || selectedProduct.cantidad == "") {
                       alert("Debe poner cantidades válidas");
-                      location.reload();
                   } else {
                       totalStars += productInList.puntos * selectedProduct.cantidad;
                       console.log("Total estrellas ganadas:", productInList, totalStars);
@@ -236,8 +232,7 @@ function finishRequest(requestId, requestTitle) {
           });
 
           if (rating <= 0) {
-              alert("Ingrese la cantidad");
-              location.reload();
+              alert("Ingrese la cantidad de kilos para cada producto");    
           } else {
               fetch(`/admin/request/finish/${requestId}`, {
                   method: 'POST',
@@ -263,17 +258,17 @@ function finishRequest(requestId, requestTitle) {
           }
       };
   } else if (requestTitle === "Quejas-Reclamos" || requestTitle === "Sugerencias") {
-      // Mostrar alert con opciones de aceptar o cancelar
+
       const confirmation = confirm('¿Está seguro de que ha revisado la solicitud y le ha dado un tratamiento adecuado?');
       if (confirmation) {
-          // Si el usuario acepta, se marca la solicitud como "terminada"
+  
           fetch(`/admin/request/finish/${requestId}`, {
               method: 'POST',
               headers: {
                   'Content-Type': 'application/json',
                   'Authorization': 'Bearer ' + document.cookie.replace(/(?:(?:^|.*;\s*)token\s*\=\s*([^;]*).*$)|^.*$/, "$1")
               },
-              body: JSON.stringify({ rating: 0 }) // Sin productos, sin estrellas
+              body: JSON.stringify({ rating: 0 }) 
           })
           .then(response => {
               if (response.ok) {
@@ -288,9 +283,8 @@ function finishRequest(requestId, requestTitle) {
               alert('Error al terminar la solicitud.');
           });
       }
-      // Si el usuario cancela, no se hace nada
-  } else if (requestTitle === "Alquiler-compra de contenedor") {
-      // Llamar a la función específica para manejar contenedores
+  } else if (requestTitle === "Alquilar contenedor" || requestTitle === "Comprar contenedor") {
+      
       handleContainerRequest(requestId);
   }
 }
@@ -299,10 +293,7 @@ function closeRatingModal() {
   renderSelectedProducts();
     document.getElementById('rating-modal').style.display = 'none';
 }
-
 let allClients = []; 
-
-
 function loadClients(page = 1) {
     const url = `/admin/clients?page=${page}`;
 
@@ -368,7 +359,6 @@ function renderClients(clients) {
 
     contentArea.appendChild(clientContainer);
 }
-
 function searchClient() {
     const searchQuery = document.getElementById('search-input').value.toLowerCase();
     const filteredClients = allClients.filter(client => {
@@ -389,7 +379,6 @@ function searchClient() {
 
     renderClients(filteredClients);
 }
-
 function toggleClientDetails(clientBox, clientId) {
     const isExpanded = clientBox.classList.contains('expanded');
     
@@ -430,7 +419,6 @@ function toggleClientDetails(clientBox, clientId) {
         .catch(error => console.error('Error al cargar solicitudes del cliente:', error));
     }
 }
-
 document.getElementById('solicitudes-link').addEventListener('click', function(event) {
     event.preventDefault();
     loadRequests();
@@ -440,8 +428,6 @@ document.getElementById('solicitudes-link').addEventListener('click', function(e
     event.preventDefault();
     loadClients(1); 
 });
-
-
 document.getElementById('productos-link').addEventListener('click', function(event){
     loadProductManagement();
 })
@@ -486,7 +472,6 @@ function loadProductManagement() {
 
     fetchProducts();
 }
-
   function fetchProducts() {
     fetch('admin/products', {
         method: 'GET',
@@ -592,4 +577,101 @@ function loadProductManagement() {
         });
     }
   });
+  async function handleContainerRequest(requestId) {
+    try {
+      const response = await fetch(`/admin/request/${requestId}`, {
+        headers: {
+          'Authorization': 'Bearer ' + document.cookie.replace(/(?:(?:^|.*;\s*)token\s*\=\s*([^;]*).*$)|^.*$/, "$1")
+        }
+      });
+  
+      if (!response.ok) {
+        throw new Error("No se pudo obtener la solicitud");
+      }
+  
+      const request = await response.json();
+      console.log("response",request);
+      const modal = document.createElement('div');
+      modal.id = 'container-request-modal';
+      modal.style.position = 'fixed';
+      modal.style.top = '50%';
+      modal.style.left = '50%';
+      modal.style.transform = 'translate(-50%, -50%)';
+      modal.style.padding = '20px';
+      modal.style.backgroundColor = 'white';
+      modal.style.border = '1px solid #ccc';
+      modal.style.borderRadius = '8px';
+      modal.style.boxShadow = '0px 4px 8px rgba(0, 0, 0, 0.2)';
+      modal.style.zIndex = '1000';
+      modal.innerHTML = `
+      <a id="closeModal">X</a>
+        <h2>Detalles del Contenedor</h2>
+        <img src="${request.containerId.image}" alt="${request.containerId.nombre}" class="modal-image-low">
+        <p><strong>Nombre:</strong> ${request.containerId?.nombre || 'N/A'}</p>
+        <p><strong>Capacidad:</strong> ${request.containerId?.size || 'N/A'}</p>
+        <p><strong>Ubicación:</strong> ${request.containerId?.location || 'N/A'}</p>
+        <label>
+          <input type="checkbox" id="completedCheckbox">
+          ¿Entrega completada?
+        </label>
+        <br>
+        <br>
+        <button id="finalizeContainerRequest">Finalizar</button>
+      `;
+  
+      document.body.appendChild(modal);
+  
+      document.getElementById('closeModal').onclick = function () {
+        document.body.removeChild(modal);
+      };
+
+      document.getElementById('finalizeContainerRequest').onclick = async function () {
+        const completed = document.getElementById('completedCheckbox').checked;
+  
+        try {
+          const updateRequestResponse = await fetch(`/admin/request/finish/${requestId}`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': 'Bearer ' + document.cookie.replace(/(?:(?:^|.*;\s*)token\s*\=\s*([^;]*).*$)|^.*$/, "$1")
+            },
+            body: JSON.stringify({ 
+              status: 'terminado',
+              completed
+            })
+          });
+          document.body.removeChild(modal);
+          alert("Solicitud finalizada exitosamente");
+          loadRequests();
+          /*if (completed && request.containerId) {
+            const updateContainerResponse = await fetch(`/user/containers/${request.containerId}  `, {
+              method: 'PUT',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + document.cookie.replace(/(?:(?:^|.*;\s*)token\s*\=\s*([^;]*).*$)|^.*$/, "$1")
+              },
+              body: JSON.stringify({ available: false })
+            });
+  
+            if (!updateContainerResponse.ok) {
+              throw new Error("No se pudo actualizar la disponibilidad del contenedor");
+            }
+          }
+          if (updateRequestResponse.ok) {
+            alert("Solicitud finalizada exitosamente");
+            document.body.removeChild(modal);
+            loadRequests();
+          } else {
+            alert("Error al finalizar la solicitud");
+          }*/
+        } catch (error) {
+          console.error("Error al finalizar la solicitud:", error);
+          alert("Error al finalizar la solicitud");
+        }
+      };
+    } catch (error) {
+      console.error("Error al manejar la solicitud de contenedor:", error);
+      alert("Error al manejar la solicitud de contenedor");
+    }
+  }
   
