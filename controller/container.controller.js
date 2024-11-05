@@ -1,4 +1,4 @@
-import Container from '../models/Container.model.js';
+import Container from '../models/container.model.js';
 
 export const createContainer = async (req, res) => {
     const { nombre, type, size, price, availability, location, description, image } = req.body;
