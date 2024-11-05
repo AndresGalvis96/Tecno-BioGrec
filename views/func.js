@@ -372,7 +372,7 @@ function req(){
         <div class="assistance-option">
             <div class="icon-container">
                 <div class="icon-circle">
-                     <img src="/img/queja.PNG" alt="queja">
+                     <img src="/img/queja.png" alt="queja">
                 </div>
             </div>
             <div class="option-text">
@@ -593,7 +593,7 @@ function asistencia() {
         <div class="assistance-option">
             <div class="icon-container">
                 <div class="icon-circle">
-                     <img src="/img/info.PNG" alt="trash">
+                     <img src="/img/info.png" alt="trash">
                 </div>
             </div>
             <div class="option-text">
