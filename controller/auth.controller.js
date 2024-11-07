@@ -85,6 +85,12 @@ else{
     
     res.redirect(`/bienvenido`); 
 }
+    
+  } catch (error) {
+    console.error("Error al registrar el usuario", error);
+    res.status(500).json({ success: false, message: "Error en el servidor" });
+  }
+};
 
 export const logout = (req, res) => {
   try {
