@@ -74,8 +74,8 @@ export const signup = async (req, res) => {
     if (!docRegex.test(doc)) {
       return res.status(400).json({ success: false, message: "El documento debe tener entre 7 y 10 dígitos" });
     }
-
-    const userType = type || "cliente"; 
+else{
+  const userType = type || "cliente"; 
  
     const newUser = await createUser({ name, lastName, email, password, address, phone, doc, type: userType, location });
 
@@ -84,11 +84,7 @@ export const signup = async (req, res) => {
     res.cookie('token', token, { httpOnly: true });
     
     res.redirect(`/bienvenido`); 
-  } catch (error) {
-    console.error("Error al registrar el usuario", error);
-    res.status(500).json({ success: false, message: "Error en el servidor" });
-  }
-};
+}
 
 export const logout = (req, res) => {
   try {
