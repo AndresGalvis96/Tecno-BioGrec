@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <link rel="stylesheet" href="/styles/styleIndex.css">
     <meta charset="UTF-8">
@@ -8,9 +8,15 @@
     <title>Registro de Usuario</title>
 </head>
 <body>
-    
-    <form id="registerForm">
+    <div id="notification" class="notification hidden">
+        <p id="notification-message"></p>
+        <button onclick="closeNotification()">Cerrar</button>
+    </div>
+    <div class="form-container">
         <h2>Regístra tus datos.</h2>
+    <form id="registerForm">
+        
+       
         <label for="name">Nombre:</label>
         <input type="text" id="name" name="name" required><br>
         
@@ -28,8 +34,8 @@
         
         <label for="phone">Teléfono:</label>
         <input type="text" id="phone" name="phone" required><br>
-        <label for="type">Tipo:</label>
-        <select id="type" name="type" required>
+        <label for="producto-lista">Tipo:</label>
+        <select id="producto-lista" name="producto-lista" required>
             <option value="" disabled selected>Seleccione un tipo</option>
             <option value="empresa">Empresa</option>
             <option value="edificio">Edificio</option>
@@ -40,8 +46,9 @@
         <input type="password" id="password" name="password" required><br>
         
         <button type="submit">Registrarse</button>
+        <p><a href="/">Volver</a></p>
     </form>
-
+    </div>
     <script>
         document.getElementById('registerForm').addEventListener('submit', function(event) {
             event.preventDefault(); 
@@ -53,7 +60,7 @@
                 address: document.getElementById('address').value,
                 phone: document.getElementById('phone').value,
                 password: document.getElementById('password').value,
-                type: document.getElementById('type').value
+                type: document.getElementById('producto-lista').value
             };
 
             if (navigator.geolocation) {
@@ -74,46 +81,58 @@
                         console.error('Error al obtener la ubicación:', error);
                         handleGeolocationError(error);
 
-                        // Enviar el formulario sin la ubicación
                         sendFormData(formData);
                     },
                     {
-                        enableHighAccuracy: true, // Solicitar la mejor precisión posible
-                        timeout: 5000,            // Tiempo máximo para intentar obtener la ubicación (5 segundos)
-                        maximumAge: 0             // No usar caché para la ubicación
+                        enableHighAccuracy: true, 
+                        timeout: 5000,           
+                        maximumAge: 0           
                     }
                 );
             } else {
                 console.error("La geolocalización no está soportada por este navegador");
-                sendFormData(formData); // Enviar los datos sin ubicación
+                sendFormData(formData); 
             }
         });
 
-        // Función para enviar los datos al servidor
         function sendFormData(formData) {
-            fetch('http://localhost:3200/auth/signup', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(formData)
-            })
-            .then(response => {
-                if (response.ok) {
-                    // Redirigir a una página de bienvenida o mostrar mensaje de éxito
-                    window.location.href = '/bienvenido';
-                } else {
-                    return response.json().then(data => {
-                        alert('Error: ' + data.message);
-                    });
-                }
-            })
-            .catch(error => {
-                console.error('Error en la solicitud:', error);
+    fetch('http://localhost:3200/auth/signup', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(formData)
+    })
+    .then(response => {
+        if (response.ok) {
+            
+            window.location.href = '/bienvenido';
+        } else {
+            return response.json().then(data => {
+                showNotification(data.message);
             });
         }
+    })
+    .catch(error => {
+        console.error('Error en la solicitud:', error);
+        showNotification("Error en la solicitud, intente nuevamente."); 
+    });
+}
 
-        // Función para manejar errores de geolocalización
+function showNotification(message) {
+    const notification = document.getElementById('notification');
+    const notificationMessage = document.getElementById('notification-message');
+    
+    notificationMessage.textContent = message;
+    notification.classList.remove('hidden'); 
+}
+document.getElementById('registerForm').addEventListener('click',function(even){
+    closeNotification();
+})
+function closeNotification() {
+    document.getElementById('notification').classList.add('hidden');
+}
+
         function handleGeolocationError(error) {
             switch(error.code) {
                 case error.PERMISSION_DENIED:
