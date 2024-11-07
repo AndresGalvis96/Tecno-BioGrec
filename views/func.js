@@ -999,7 +999,7 @@ function sendWhatsAppMessage() {
     const phoneNumber = "573163313942"; // Número de WhatsApp con el código de país
     const message = encodeURIComponent("Hola, me gustaría establecer contacto"); 
 
-    const whatsappUrl = `https://wa.me/${phoneNumber}?text=${message}`;
+    const whatsappUrl = `intent://send?phone=${phoneNumber}&text=${message}.#Intent;scheme=whatsapp;package=com.whatsapp;end"`;
 
     location.href = whatsappUrl;
 }
