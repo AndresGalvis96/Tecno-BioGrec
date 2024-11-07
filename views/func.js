@@ -997,13 +997,11 @@ function openContainerModal(container) {
 }
 function sendWhatsAppMessage() {
     const phoneNumber = "573163313942"; // Número de WhatsApp con el código de país
-    const message = encodeURIComponent("Hola, me gustaría establecer contacto"); // Mensaje predefinido
+    const message = encodeURIComponent("Hola, me gustaría establecer contacto"); 
 
-    // Crear la URL de WhatsApp con el número y el mensaje
     const whatsappUrl = `https://wa.me/${phoneNumber}?text=${message}`;
 
-    // Redirigir al enlace de WhatsApp
-    window.open(whatsappUrl, "_blank"); // Abre el enlace en una nueva pestaña
+    location.href = whatsappUrl;
 }
 function gooBack() {
     window.location.href = "/bienvenido"; 
