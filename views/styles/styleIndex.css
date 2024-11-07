@@ -1,15 +1,19 @@
-body {
+html, body {
     font-family: Arial, sans-serif;
-    background-color: #e8e6e6;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
     margin: 0;
+    padding: 10PX;
+    height: 100%;
+}
+
+label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: bold;
+    color: #4A4A4A;
 }
 
 .log-container {
-    background-color:#8fe3b8;
+    background-color:#fefefec9;
     padding: 20px; 
     border-radius: 10px; 
 box-shadow: #333;
@@ -18,18 +22,13 @@ box-shadow: #333;
     color: black;
 }
 
-h2 {
-    color: #333;
-    text-align: center;
-}
-
 .login-form {
     display: flex;
-    flex-direction: column; /* Organizar elementos en columna */
+    flex-direction: column; 
 }
 
 .form-group {
-    margin-bottom: 15px; /* Espacio entre grupos de formulario */
+    margin-bottom: 15px;
 }
 
 label {
@@ -42,24 +41,24 @@ label {
 input[type="text"],
 input[type="email"],
 input[type="password"] {
-    width: 100%; /* Ancho completo */
-    padding: 10px; /* Espaciado interno */
-    margin-bottom: 15px; /* Espacio debajo de los inputs */
-    border: 1px solid #ccc; /* Borde */
-    border-radius: 5px; /* Bordes redondeados */
-    box-sizing: border-box; /* Incluir padding y border en el ancho total */
-    font-size: 14px; /* Tamaño de fuente */
+    width: 100%; 
+    padding: 10px; 
+    margin-bottom: 15px; 
+    border: 1px solid #acacac; 
+    border-radius: 5px; 
+    box-sizing: border-box; 
+    font-size: 14px;
 }
 
 input[type="text"]:focus,
 input[type="email"]:focus,
 input[type="password"]:focus {
-    border-color: #007bff; /* Color del borde al hacer foco */
-    outline: none; /* Sin contorno adicional */
+    border-color: #007bff; 
+    outline: none; 
 }
 
 button[type="submit"] {
-    width: 100%; /* Ancho completo */
+    width: 100%; 
     padding: 10px; /* Espaciado interno */
     background-color: #007bff; /* Color de fondo */
     color: #fff; /* Color del texto */
@@ -76,4 +75,83 @@ button[type="submit"]:hover {
 
 p {
     text-align: center; /* Centrar texto */
+}
+#productos-lista{
+    background-color: #e1e0e0;
+    padding: 25px;
+    border: 2px solid #ccc;
+}
+select {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+select {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+body {
+    font-family: Arial, sans-serif;
+    background-color: #6f6e6d5c;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    overflow: hidden;
+}
+
+.form-container {
+    background-color:#ffffff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    max-width: 400px;
+    width: 90%;
+    color: black;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    max-height: 80vh;
+}
+
+h2 {
+    color: #131313;
+    text-align: center;
+}
+
+label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: bold;
+    color: #000000;
+}.notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background-color: #f44336; /* Rojo para error */
+    color: white;
+    padding: 15px;
+    border-radius: 5px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+    max-width: 300px;
+}
+.notification p {
+    margin: 0;
+    padding-right: 10px;
+}
+.notification button {
+    background: none;
+    border: none;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+}
+.hidden {
+    display: none;
 }
