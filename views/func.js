@@ -577,7 +577,7 @@ function asistencia() {
             </div>
         </div>
         </a>
-    <a href="href="https://wa.me/573163313942">
+    <a href="href="#" onclick="sendWhatsAppMessage()">
         <div class="assistance-option">
             <div class="icon-container">
                 <div class="icon-circle">
@@ -999,7 +999,7 @@ function sendWhatsAppMessage() {
     const phoneNumber = "573163313942"; // Número de WhatsApp con el código de país
     const message = encodeURIComponent("Hola, me gustaría establecer contacto"); 
 
-    const whatsappUrl = `intent://send?phone=${phoneNumber}&text=${message}.#Intent;scheme=whatsapp;package=com.whatsapp;end"`;
+    const whatsappUrl = "https://wa.me/573163313942";
 
     location.href = whatsappUrl;
 }
