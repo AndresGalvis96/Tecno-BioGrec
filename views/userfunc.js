@@ -175,7 +175,7 @@ async function listPremios() {
 
         console.log("Datos de premios obtenidos:", premios);  
 
-        contentArea.innerHTML = '';
+        contentArea.innerHTML = '<a onclick="gooBack();">←</a>';
         const botonHabilitado = puntosUsuario >= premios.puntosNecesarios;
         premios.forEach((premio) => {
             const premioCard = document.createElement('div');
