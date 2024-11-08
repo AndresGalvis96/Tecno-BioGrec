@@ -326,6 +326,96 @@ document.getElementById('solicitar-link').addEventListener('click', function(eve
     req();
  
 });
+function reclamo() {
+    const contentArea = document.getElementById('content-area');
+    contentArea.innerHTML = `
+    <a onclick="req();">X</a>
+        <h2>Datos necesarios para el Reclamo</h2>
+        <form id="reclamo-form">
+            <!-- Fila de Municipio y Teléfono -->
+            <div style="display: flex; gap: 20px; margin-bottom: 15px;">
+                <div style="flex: 1;">
+                    <label for="municipio-input">Municipio:</label>
+                    <input type="text" id="municipio-input" placeholder="Municipio" required style="width: 100%;" />
+                </div>
+                <div style="flex: 1;">
+                    <label for="telefono-input">Teléfono:</label>
+                    <input type="text" id="telefono-input" placeholder="Teléfono" required style="width: 100%;" />
+                </div>
+            </div>
+
+            <!-- Fila de Correo Opcional -->
+            <div style="display: flex; align-items: center; gap: 20px; margin-bottom: 15px;">
+                <div style="flex: 1;">
+                    <label for="correo-checkbox">
+                        <input type="checkbox" id="correo-checkbox" /> Incluir Correo de Contacto
+                    </label>
+                    <input type="email" id="correo-input" placeholder="Correo de Contacto" style="width: 100%;height:25px;" disabled />
+                </div>
+            </div>
+
+            <div style="margin-bottom: 20px;">
+                <label for="reclamo-textarea">Contenido del Reclamo:</label>
+                <textarea id="reclamo-textarea" placeholder="Escribe tu reclamo aquí..." style="width: 100%; height: 100px;" required></textarea>
+            </div>
+
+            <!-- Botón de enviar reclamo -->
+            <button type="button" id="enviar-reclamo" style="margin-top: 20px;">Enviar Reclamo</button>
+        </form>
+    `;
+
+    document.getElementById('correo-checkbox').addEventListener('change', function() {
+        const correoInput = document.getElementById('correo-input');
+        correoInput.disabled = !this.checked;
+    });
+
+    document.getElementById('enviar-reclamo').addEventListener('click', function() {
+        const municipio = document.getElementById('municipio-input').value.trim();
+        const telefono = document.getElementById('telefono-input').value.trim();
+        const incluirCorreo = document.getElementById('correo-checkbox').checked;
+        const correo = incluirCorreo ? document.getElementById('correo-input').value.trim() : '';
+        const reclamo = document.getElementById('reclamo-textarea').value.trim();
+
+        if (!municipio || !telefono || !reclamo) {
+            alert("Por favor, complete todos los campos requeridos.");
+            return;
+        }
+
+        let detalle = `Municipio: ${municipio}, Teléfono: ${telefono}\n`;
+        if (incluirCorreo && correo) {
+            detalle += `Correo de Contacto: ${correo}\n`;
+        }
+        detalle += `Reclamo: ${reclamo}`;
+
+        enviarReclamo(detalle);
+    });
+
+    function enviarReclamo(detalle) {
+        const requestData = {
+            title: "Reclamo",
+            detail: detalle
+        };
+
+        fetch('/auth/requests', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + document.cookie.replace(/(?:(?:^|.*;\s*)token\s*\=\s*([^;]*).*$)|^.*$/, "$1")
+            },
+            body: JSON.stringify(requestData)
+        })
+        .then(response => response.json())
+        .then(data => {
+            alert("Reclamo enviado exitosamente.");
+            document.getElementById('reclamo-form').reset();
+        })
+        .catch(error => {
+            console.error("Error al enviar el reclamo:", error);
+            alert("Error al enviar el reclamo.");
+        });
+    }
+}
+
 function req(){
     const content =document.getElementById('content-area');
     content.innerHTML=`
@@ -370,6 +460,7 @@ function req(){
             </div>
         </div>
     </a>
+    <a onclick="reclamo()">
         <div class="assistance-option">
             <div class="icon-container">
                 <div class="icon-circle">
@@ -382,6 +473,7 @@ function req(){
             </div>
         </div>
     </div>
+    </a>
     ` 
 }
 function solicitar() {
