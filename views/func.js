@@ -577,7 +577,7 @@ function asistencia() {
             </div>
         </div>
         </a>
-    <a href="#" onclick="sendWhatsAppMessage()">
+    <a href="href="https://wa.me/573163313942">
         <div class="assistance-option">
             <div class="icon-container">
                 <div class="icon-circle">
