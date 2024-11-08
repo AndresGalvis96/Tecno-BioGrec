@@ -162,7 +162,7 @@ function profile() {
                     ? `<div id="stars"><h4>Mis Estrellas: ${pointsData.totalPoints}</h4></div>` 
                     : `<h3>Aún no has ganado estrellas</h3>`;
 
-                    document.getElementById('content-area').innerHTML = `
+                    document.getElementById('content-area').innerHTML = `<a onclick="gooBack();">←</a>
                     ${pointsBanner}
                     <div style="display: flex; justify-content: space-between; margin-bottom: 20px;">
                         <div style="flex: 1;">
@@ -329,6 +329,7 @@ document.getElementById('solicitar-link').addEventListener('click', function(eve
 function req(){
     const content =document.getElementById('content-area');
     content.innerHTML=`
+    <a onclick="gooBack();">←</a>
     <div class="assistance-container">
     <a href="#" onclick="generarFormularioRecoleccion()">
         <div class="assistance-option">
@@ -384,7 +385,7 @@ function req(){
     ` 
 }
 function solicitar() {
-    document.getElementById('content-area').innerHTML = `
+    document.getElementById('content-area').innerHTML = `<a onclick="gooBack();">←</a>
     <div id="requ-content">
         <h2>Información de la solicitud</h2>
         <div id="formulario-solicitud"> 
@@ -488,7 +489,7 @@ function listar(){
         const requestsList = document.getElementById('content-area');
         requestsList.innerHTML = ''; 
         const titl= document.createElement('h2');
-        titl.innerHTML='<a onclick="gooBack();">X</a> <h3>Solicitudes</h3>';
+        titl.innerHTML='<a onclick="gooBack();">←</a> <h3>Solicitudes</h3>';
         if (data && data.length > 0) {
             console.log(data);
             requestsList.appendChild(titl);
@@ -511,7 +512,7 @@ function listar(){
             });
             
         } else {
-            requestsList.innerHTML = '<p>No se encontraron solicitudes.</p>';
+            requestsList.innerHTML = '<a onclick="gooBack();">←</a><p>No se encontraron solicitudes.</p>';
         }
     })
     .catch(error => {
@@ -549,7 +550,7 @@ document.getElementById('asistencia-link').addEventListener('click',function(eve
 function asistencia() {
     const content =document.getElementById('content-area');
     content.innerHTML=`
-    <a onclick="gooBack();">X</a>
+   <a onclick="gooBack();">←</a>
     <a onclick="displayContainers();">
     <div class="assistance-container">
         <div class="assistance-option">
