@@ -50,6 +50,15 @@
     </form>
     </div>
     <script>
+         document.addEventListener('DOMContentLoaded', function() {
+            const storedLocation = JSON.parse(localStorage.getItem('userLocation'));
+
+if (storedLocation) {
+    console.log('Ubicación recuperada desde localStorage:', storedLocation);
+} else {
+    console.log('No se ha encontrado ubicación en localStorage');
+}
+        })
         document.getElementById('registerForm').addEventListener('submit', function(event) {
             event.preventDefault(); 
             const formData = {
@@ -70,10 +79,7 @@
                         const latitude = position.coords.latitude;
                         const longitude = position.coords.longitude;
                         console.log('Ubicación obtenida:', latitude, longitude);
-                        formData.location = {
-                            latitude: latitude,
-                            longitude: longitude
-                        };
+                        formData.location = storedLocation;
 
                         sendFormData(formData);
                     },
