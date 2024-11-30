@@ -79,7 +79,7 @@ document.getElementById('registerForm').addEventListener('submit', function (eve
 
     if (!storedLocation) {
         console.error('Ubicación no disponible. Intenta habilitar la geolocalización.');
-        alert('No se puede registrar sin una ubicación válida.');
+        alert(storedLocation);
         return;
     }
     sendFormData(formData);
