@@ -64,7 +64,8 @@ export const signup = async (req, res) => {
     const { name, lastName, email, password, address, phone, doc, type, location } = req.body;
     let lat, lon;
     if (!name || !lastName || !email || !password || !address || !phone || !doc || !location) {
-      return res.status(400).json({ success: false, message: "Todos los campos, incluyendo 'phone' y 'doc', son obligatorios" });
+      console.log(name, lastName, email, password, address, phone, doc, type, location);
+      return res.status(400).json({ success: false, message: "Todos los campos son obligatorios" });
     }
 
     if (!phoneRegex.test(phone)) {
