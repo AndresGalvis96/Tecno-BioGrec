@@ -24,7 +24,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 const latitude = position.coords.latitude;
                 const longitude = position.coords.longitude;
                 console.log('Ubicación obtenida:', latitude, longitude);
-                localStorage.setItem('userLocation', JSON.stringify({ latitude, longitude }));
+                sessionStorage.setItem('userLocation', JSON.stringify({ latitude, longitude }));
             },
             function(error) {
                 console.error('Error al obtener la ubicación:', error);
