@@ -50,40 +50,51 @@
     </form>
     </div>
     <script>
-     let storedLocation = null; 
+        document.getElementById('registerForm').addEventListener('submit', function(event) {
+            event.preventDefault(); 
+            const formData = {
+                name: document.getElementById('name').value,
+                lastName: document.getElementById('lastName').value,
+                doc: document.getElementById('doc').value,
+                email: document.getElementById('email').value,
+                address: document.getElementById('address').value,
+                phone: document.getElementById('phone').value,
+                password: document.getElementById('password').value,
+                type: document.getElementById('producto-lista').value
+            };
 
-document.addEventListener('DOMContentLoaded', function () {
-    storedLocation = JSON.parse(sessionStorage.getItem('userLocation'));
+            if (navigator.geolocation) {
+                console.log('Intentando obtener la ubicación...');
+                navigator.geolocation.getCurrentPosition(
+                    function(position) {
+                        const latitude = position.coords.latitude;
+                        const longitude = position.coords.longitude;
+                        console.log('Ubicación obtenida:', latitude, longitude);
+                        formData.location = {
+                            latitude: latitude,
+                            longitude: longitude
+                        };
 
-    if (storedLocation) {
-        console.log('Ubicación recuperada desde localStorage:', storedLocation);
-    } else {
-        alert('No se ha encontrado ubicación en localStorage');
-    }
-});
+                        sendFormData(formData);
+                    },
+                    function(error) {
+                        console.error('Error al obtener la ubicación:', error);
+                        handleGeolocationError(error);
 
-document.getElementById('registerForm').addEventListener('submit', function (event) {
-    event.preventDefault();
+                        sendFormData(formData);
+                    },
+                    {
+                        enableHighAccuracy: true, 
+                        timeout: 5000,           
+                        maximumAge: 0           
+                    }
+                );
+            } else {
+                console.error("La geolocalización no está soportada por este navegador");
+                sendFormData(formData); 
+            }
+        });
 
-    const formData = {
-        name: document.getElementById('name').value,
-        lastName: document.getElementById('lastName').value,
-        doc: document.getElementById('doc').value,
-        email: document.getElementById('email').value,
-        address: document.getElementById('address').value,
-        phone: document.getElementById('phone').value,
-        password: document.getElementById('password').value,
-        type: document.getElementById('producto-lista').value,
-        location: storedLocation, 
-    };
-
-    if (!storedLocation) {
-        console.error('Ubicación no disponible. Intenta habilitar la geolocalización.');
-        alert(storedLocation);
-        return;
-    }
-    sendFormData(formData);
-});
         function sendFormData(formData) {
     fetch('/auth/signup', {
         method: 'POST',
