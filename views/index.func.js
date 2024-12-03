@@ -17,6 +17,10 @@ function eliminarProducto(productId) {
     });
 }
 document.addEventListener('DOMContentLoaded', function() {
+    const username = localStorage.getItem('username');
+    if (username) {
+        document.getElementById('email').value = username;
+    };
      if (navigator.geolocation) {
         console.log('Solicitando ubicación...');
         navigator.geolocation.getCurrentPosition(
@@ -72,6 +76,7 @@ document.getElementById('loginForm').onsubmit = async (event) => {
         if (!result.success) {
             alert("Email o contraseña incorrectos"); 
         } else {
+            localStorage.setItem('username', data.email);
             window.location.href = '/bienvenido'; 
         }
     } catch (error) {

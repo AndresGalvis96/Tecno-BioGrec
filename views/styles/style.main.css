@@ -146,7 +146,7 @@ nav {
     width: 25%;
     background-color: #223d3c;
     box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
-    font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+    font-family:Arial, sans-serif;
     font-size: 160%;
     font-style: italic;
     align-content: center;
@@ -799,4 +799,58 @@ h5, h2{
 .modal-contain img {
     max-width: 100%;
     height: auto;
+}
+
+.container-box {
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    padding: 16px;
+    width: 300px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    background-color: #fff;
+}
+
+.container-box h3 {
+    margin: 0 0 10px;
+    font-size: 1.25rem;
+}
+
+.container-box img {
+    width: 50%;
+    height: 30%;
+    border-radius: 4px;
+}
+
+.container-box p {
+    margin: 6px 0;
+    font-size: 0.95rem;
+}
+@keyframes blink {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0;
+    }
+}
+
+.blink {
+    animation: blink 1s infinite;
+}
+#new-product-name,
+#new-product-points {
+    width: 100%; /* Ambos inputs ocuparán el 100% del contenedor padre */
+    max-width: 300px; /* Máximo ancho para mantener consistencia */
+    padding: 10px; /* Espaciado interno */
+    margin: 5px 0; /* Espaciado vertical entre los inputs */
+    font-size: 16px; /* Tamaño de fuente consistente */
+    border: 1px solid #ccc; /* Borde uniforme */
+    border-radius: 5px; /* Bordes redondeados */
+    box-sizing: border-box; /* Incluye el padding y el borde en el tamaño total */
+}
+
+#new-product-name:focus,
+#new-product-points:focus {
+    border-color: #007bff; /* Cambia el color del borde al enfocar */
+    outline: none; /* Elimina el resalte del navegador */
 }

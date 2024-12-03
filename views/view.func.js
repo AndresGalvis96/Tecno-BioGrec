@@ -674,4 +674,61 @@ function loadProductManagement() {
       alert("Error al manejar la solicitud de contenedor");
     }
   }
-  
+ async function listAllContainers() {
+    const contentArea = document.getElementById('content-area'); 
+    contentArea.innerHTML = '<a onclick="containerManagment()"><button>Agregar nuevo</button></a> </br>'; 
+
+    try {
+       
+        const response = await fetch('/user/containers');
+        if (!response.ok) {
+            throw new Error('Error al obtener los contenedores');
+        }
+
+        const containers = await response.json();
+
+        containers.forEach(container => {
+            const containerDiv = document.createElement('div');
+            containerDiv.className = 'container-box';
+
+            containerDiv.innerHTML = `
+                <h3>${container.nombre}</h3>
+                <img src="${container.image}" alt="${container.nombre}" class="container-image" />
+                <p><strong>Tipo:</strong> ${container.type}</p>
+                <p><strong>Tamaño:</strong> ${container.size}</p>
+                <p><strong>Precio:</strong> $${container.price}</p>
+                <p><strong>Disponibilidad:</strong> ${container.availability ? 'Disponible' : 'No disponible'}</p>
+                <p><strong>Ubicación:</strong> ${container.location}</p>
+                <p>${container.description}</p>
+                <button class="delete-button" data-id="${container._id}">Borrar</button>
+            `;
+
+            const deleteButton = containerDiv.querySelector('.delete-button');
+            deleteButton.addEventListener('click', async () => {
+                await deleteContainer(container._id); // Llama a la función para borrar
+                await listAllContainers(); // Actualiza la lista después de borrar
+            });
+
+            // Inserta el div del contenedor en el área de contenido
+            contentArea.appendChild(containerDiv);
+        });
+    } catch (error) {
+        console.error('Error al listar los contenedores:', error);
+
+        // Muestra un mensaje de error en caso de fallo
+        contentArea.innerHTML = '<p>Error al cargar los contenedores. Inténtelo de nuevo más tarde.</p>';
+    }
+}
+
+// Función para eliminar un contenedor
+async function deleteContainer(id) {
+    try {
+        const response = await fetch(`/user/containers/${id}`, { method: 'DELETE' });
+        if (!response.ok) {
+            throw new Error('Error al eliminar el contenedor');
+        }
+        alert('Contenedor eliminado exitosamente');
+    } catch (error) {
+        alert('Error al eliminar el contenedor:', error);
+    }
+}

@@ -421,7 +421,7 @@ function req(){
     content.innerHTML=`
     <a onclick="gooBack();">←</a>
     <div class="assistance-container">
-    <a href="#" onclick="generarFormularioRecoleccion()">
+    <a onclick="generarFormularioRecoleccion()">
         <div class="assistance-option">
             <div class="icon-container">
                 <div class="icon-circle">
@@ -434,7 +434,7 @@ function req(){
             </div>
         </div>
     </a>
-    <a href="#" onclick="displayContainers()">
+    <a onclick="displayContainers()">
         <div class="assistance-option">
             <div class="icon-container">
                 <div class="icon-circle">
@@ -447,7 +447,7 @@ function req(){
             </div>
         </div>
     </a>
-    <a href="#" onclick="sugerencia()">
+    <a onclick="sugerencia()">
         <div class="assistance-option">
             <div class="icon-container">
                 <div class="icon-circle">
@@ -670,7 +670,7 @@ function asistencia() {
             </div>
         </div>
         </a>
-    <a href="href="#" onclick="sendWhatsAppMessage()">
+    <a onclick="sendWhatsAppMessage()">
         <div class="assistance-option">
             <div class="icon-container">
                 <div class="icon-circle">
@@ -683,6 +683,7 @@ function asistencia() {
             </div>
         </div>
     </a>
+    <a onclick="generarInstruccionesDeUso()">
         <div class="assistance-option">
             <div class="icon-container">
                 <div class="icon-circle">
@@ -691,10 +692,11 @@ function asistencia() {
             </div>
             <div class="option-text">
                 <h3>Información de uso</h3>
-                <p>Encuentra más información sobre el uso de tu información.</p>
+                <p>Encuentra más información sobre el uso de la aplicación.</p>
             </div>
         </div>
     </div>
+    </a>
     `
 }function generarFormularioRecoleccion() {
     const contentArea = document.getElementById('content-area');
@@ -761,7 +763,32 @@ function asistencia() {
             <button type="button" id="registrar-solicitud" style="margin-top: 20px;">Registrar Solicitud</button>
         </form>
     `;
+    document.getElementById('producto-select').addEventListener('change', function() {
+    const pesoInput = document.getElementById('peso-input');
+    const agregarButton = document.getElementById('agregar-producto');
     
+    if (this.value && pesoInput.value.trim()) {
+        agregarButton.classList.add('blink');
+    } else {
+        agregarButton.classList.remove('blink');
+    }
+});
+
+document.getElementById('peso-input').addEventListener('input', function() {
+    const productoSelect = document.getElementById('producto-select');
+    const agregarButton = document.getElementById('agregar-producto');
+    
+    if (this.value.trim() && productoSelect.value) {
+        agregarButton.classList.add('blink');
+    } else {
+        agregarButton.classList.remove('blink');
+    }
+});
+
+document.getElementById('agregar-producto').addEventListener('click', function() {
+    this.classList.remove('blink'); // Deja de parpadear cuando se presiona
+});
+
     document.getElementById('fecha-checkbox').addEventListener('change', function() {
         const fechaInput = document.getElementById('fecha-input');
         if (this.checked) {
@@ -1100,6 +1127,7 @@ function gooBack() {
     window.location.href = "/bienvenido"; 
 }
 const contentArea = document.getElementById("content-area");
+
 let contentHistory = []; 
 
 function updateContent(newContent) {
@@ -1107,7 +1135,9 @@ function updateContent(newContent) {
     contentHistory.push(contentArea.innerHTML);
     contentArea.innerHTML = newContent;
 }
-
+document.getElementById('content-area').addEventListener('click', function(event){
+closeNav();
+});
 function goBack() {
     // Verifica si hay contenido en el historial para regresar
     if (contentHistory.length > 0) {

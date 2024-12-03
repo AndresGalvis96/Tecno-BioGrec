@@ -1,12 +1,12 @@
 
 document.getElementById("contenedores-link").addEventListener('click', function(event){
-    containerManagment();
+    listAllContainers();
 });
 function containerManagment(){
     const content = document.getElementById("content-area");
     content.innerHTML='';
 
-    content.innerHTML=`
+    content.innerHTML=`<a onclick="listAllContainers()"><button>Cerrar</button></a> </br>
     <form id="new-container-form">
     <label for="nombre">Nombre del Contenedor:</label>
     <input type="text" id="nombre" name="nombre" required><br>
@@ -73,10 +73,56 @@ function containerManagment(){
         }
     });
 }
+  async function cargarPremios() {
+        try {
+            const response = await fetch('/user/premios');
+            const premios = await response.json();
+
+            const container = document.getElementById('content-area');
+            container.innerHTML = '<a onclick="generatePremioForm()"><button>Crear nuevo</button></a> </br>';
+
+            // Crear un contenedor para cada premio
+            premios.forEach(premio => {
+                const premioBox = document.createElement('div');
+                premioBox.classList.add('premio-box');
+                premioBox.innerHTML = `
+                    <h3>${premio.tipo}</h3>
+                    <p>${premio.descripcion}</p>
+                    <p>Disponibilidad: ${premio.disponibilidad}</p>
+                    <p>Cantidad: ${premio.cantidad}</p>
+                    <p>Puntos necesarios: ${premio.puntosNecesarios}</p>
+                    <img src="${premio.image}" alt="${premio.tipo}" width="100">
+                    <button onclick="eliminarPremio('${premio._id}')">Eliminar</button>
+                `;
+                container.appendChild(premioBox);
+            });
+        } catch (error) {
+            console.error('Error al cargar los premios:', error);
+        }
+    }
+
+    // Función para eliminar un premio
+    async function eliminarPremio(premioId) {
+        try {
+            const response = await fetch(`/user/premios/${premioId}`, {
+                method: 'DELETE',
+            });
+
+            const data = await response.json();
+            if (data.success) {
+                alert('Premio eliminado exitosamente');
+                cargarPremios(); // Recargar los premios
+            } else {
+                alert('Error al eliminar el premio');
+            }
+        } catch (error) {
+            console.error('Error al eliminar el premio:', error);
+        }
+    }
 async function generatePremioForm() {
     const contentArea = document.getElementById('content-area');
 
-    contentArea.innerHTML = `
+    contentArea.innerHTML = `<a onclick="cargarPremios()"><button>Cerrar</button></a> </br>
         <form id="premioForm" style="display: flex; flex-direction: column; gap: 10px;">
             <label>
                 Tipo:
@@ -158,7 +204,7 @@ async function submitPremioForm() {
     }
 }
 document.getElementById("premios-link").addEventListener('click',function(event) {
-    generatePremioForm();
+    cargarPremios();
 });
 async function listPremios() {
     const contentArea = document.getElementById('content-area');
@@ -245,6 +291,53 @@ async function redeemPremio(premioId, contacto) {
         console.error('Error al redimir el premio:', error);
         alert('Hubo un error al redimir el premio.');
     }
+}
+function generarInstruccionesDeUso() {
+    const contentArea = document.getElementById('content-area');
+    contentArea.innerHTML = `<a onclick="asistencia();">←</a>
+        <h2>Guía de Uso de la Aplicación</h2>
+        <section>
+            <h3>Área de Solicitudes</h3>
+            <p>Dependiendo del tipo de usuario, puedes crear solicitudes detalladas donde se ingresan los productos y sus respectivos pesos. 
+               Después de seleccionar el producto y agregar su peso, presiona el botón <strong>Agregar</strong> para incluirlos en la lista. 
+               En casos de grandes volúmenes donde no sea posible detallar cada material con su peso exacto, puedes proporcionar un peso aproximado.</p>
+            <p>Las solicitudes enviadas se colocan en cola para ser atendidas. En el momento de enviar una solicitud, puedes utilizar tu ubicación 
+               predeterminada registrada o enviar tu ubicación actual para que el recolector sepa exactamente dónde recoger los materiales.</p>
+        </section>
+
+        <section>
+            <h3>Solicitud de Adquisición de Contenedor</h3>
+            <p>Desde el menú, puedes acceder a esta sección para <strong>Comprar</strong> o <strong>Alquilar</strong> un contenedor. Los detalles 
+               del contenedor, como si está disponible para venta o alquiler, estarán visibles en la solicitud. Una vez enviada, un administrador 
+               se pondrá en contacto contigo para coordinar la entrega en tu ubicación de preferencia.</p>
+        </section>
+
+        <section>
+            <h3>Historial de Solicitudes</h3>
+            <p>En el historial de solicitudes, podrás ver los puntos recibidos por las entregas completadas. Estos puntos se acumulan como 
+               recompensa por tus contribuciones al reciclaje.</p>
+        </section>
+
+        <section>
+            <h3>Puntos y Redimir Premios</h3>
+            <p>En la ventana principal, en la parte superior, encontrarás una estrella con la cantidad de puntos acumulados. Desde ahí, 
+               puedes acceder al enlace <strong>Redimir Puntos</strong>, o desde la sección de asistencia. Aquí podrás consultar la lista 
+               de premios, los puntos necesarios para cada uno y redimir el que prefieras.</p>
+        </section>
+
+        <section>
+            <h3>Mi Perfil y Datos Personales</h3>
+            <p>Desde el menú, puedes acceder a la sección <strong>Mi Perfil</strong> para editar tus datos personales, como tu nombre, 
+               dirección o tipo de usuario (Personal, Conjunto Residencial, Edificio o Empresa). Después de realizar los cambios, presiona 
+               el botón <strong>Guardar Cambios</strong> para actualizarlos en la base de datos.</p>
+        </section>
+
+        <section>
+            <h3>Asistencia</h3>
+            <p>En la sección de asistencia, encontrarás un formulario para contactar a un administrador a través de WhatsApp. También puedes 
+               redactar sugerencias, quejas o reclamos desde esta misma sección.</p>
+        </section>
+    `;
 }
 
 
