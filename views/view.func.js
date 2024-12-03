@@ -257,7 +257,7 @@ function finishRequest(requestId, requestTitle) {
               });
           }
       };
-  } else if (requestTitle === "Quejas-Reclamos" || requestTitle === "Sugerencias") {
+  } else if (requestTitle === "Reclamo" || requestTitle === "Sugerencias") {
 
       const confirmation = confirm('¿Está seguro de que ha revisado la solicitud y le ha dado un tratamiento adecuado?');
       if (confirmation) {
