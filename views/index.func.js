@@ -50,7 +50,7 @@ document.getElementById('loginForm').onsubmit = async (event) => {
         if (!result.success) {
             alert("Email o contraseña incorrectos"); 
         } else {
-            localStorage.setItem('username', data.email);
+            
             window.location.href = '/bienvenido'; 
         }
     } catch (error) {
