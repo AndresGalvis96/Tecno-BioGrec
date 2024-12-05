@@ -17,32 +17,6 @@ function eliminarProducto(productId) {
     });
 }
 document.addEventListener('DOMContentLoaded', function() {
-    const username = localStorage.getItem('username');
-    if (username) {
-        document.getElementById('email').value = username;
-    };
-     if (navigator.geolocation) {
-        console.log('Solicitando ubicación...');
-        navigator.geolocation.getCurrentPosition(
-            function(position) {
-                const latitude = position.coords.latitude;
-                const longitude = position.coords.longitude;
-                console.log('Ubicación obtenida:', latitude, longitude);
-                sessionStorage.setItem('userLocation', JSON.stringify({ latitude, longitude }));
-            },
-            function(error) {
-                console.error('Error al obtener la ubicación:', error);
-
-            },
-            {
-                enableHighAccuracy: true,
-                timeout: 5000,
-                maximumAge: 0
-            }
-        );
-    } else {
-        console.error("La geolocalización no está soportada por este navegador");
-    }
     const loginTitle = document.getElementById('login-title');
     const secretKeyContainer = document.getElementById('secret-key-container');
     let clickCount = 0;
